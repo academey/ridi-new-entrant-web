@@ -5,7 +5,13 @@
   "main": "index.js",
   "scripts": {
     "start": "npm run lint && tsc && node dist",
-    "lint": "tslint -p ."
+    "lint": "tslint -p .",
+    "nodemon": "npm run lint && nodemon --watch src --delay 1 --exec 'ts-node' src/index.js",
+    "build": "webpack --config webpack.config.js",
+    "test": "jest",
+    "client": "webpack-dev-server --mode development --devtool inline-source-map --hot",
+    "server": "nodemon --exec ts-node src/server/index.js",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "repository": {
     "type": "git",
@@ -17,14 +23,59 @@
     "url": "https://github.com/academey/ridi-new-entrant-web/issues"
   },
   "homepage": "https://github.com/academey/ridi-new-entrant-web#readme",
+  "keywords": [
+    "react",
+    "es2016",
+    "typescript",
+    "webpack"
+  ],
   "dependencies": {
-    "express": "^4.17.1"
+    "babel-loader": "^8.0.5",
+    "babel-runtime": "^6.26.0",
+    "babel-preset-es2016": "^6.16.0",
+    "babel-preset-react": "^6.0.0",
+    "concurrently": "^4.1.0",
+    "express": "^4.17.1",
+    "html-webpack-plugin": "^3.2.0",
+    "nodemon": "^1.19.1",
+    "npm-run-all": "^4.1.5",
+    "ts-loader": "^6.0.2",
+    "path": "~0.12.7",
+    "react": "~16.6.0",
+    "react-dom": "~16.6.0",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0",
+    "webpack-dev-server": "^3.2.1"
   },
   "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.4.0",
+    "@babel/node": "^7.2.2",
+    "@babel/plugin-proposal-class-properties": "^7.4.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.4.0",
+    "@babel/plugin-transform-classes": "^7.4.0",
+    "@babel/plugin-transform-proto-to-assign": "^7.2.0",
+    "@babel/plugin-transform-runtime": "^7.4.3",
+    "@babel/polyfill": "^7.4.0",
+    "@babel/preset-env": "^7.4.2",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/preset-typescript": "^7.3.3",
+    "@babel/runtime": "^7.4.3",
+    "@emotion/core": "^10.0.10",
+    "@types/css-font-loading-module": "^0.0.2",
+    "@types/react": "^16.8.19",
+    "@types/react-dom": "^16.8.4",
     "@ridi/tslint-config": "^0.1.0",
     "@types/express": "^4.16.1",
     "@types/node": "^12.0.4",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.0.6",
+    "babel-preset-env": "^1.7.0",
+    "jest": "^24.8.0",
+    "ts-node": "^8.2.0",
     "tslint": "^5.17.0",
-    "typescript": "^3.5.1"
+    "typescript": "^3.5.1",
+    "webpack": "^4.32.2",
+    "webpack-dev-server": "^3.5.1"
   }
 }

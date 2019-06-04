@@ -1,4 +1,6 @@
 {
-    "extends": ["@ridi/tslint-config"],
-    "rules": {}
+  "extends": ["@ridi/tslint-config"],
+  "rules": {
+    "no-console": false
   }
+}
