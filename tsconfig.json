@@ -4,7 +4,11 @@
     "target": "es6",
     "moduleResolution": "node",
     "outDir": "dist",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "jsx": "preserve",
     "strictNullChecks": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }

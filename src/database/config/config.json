@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "root",
+    "password": "pass",
+    "database": "ridi_entrant",
+    "host": "127.0.0.1",
+    "dialect": "mariadb"
+  },
+  "test": {
+  "username": "root",
+  "password": "pass",
+  "database": "ridi_entrant",
+  "host": "127.0.0.1",
+  "dialect": "mariadb"
+  },
+  "production": {
+"username": "root",
+"password": "pass",
+"database": "ridi_entrant",
+"host": "127.0.0.1",
+"dialect": "mariadb"
+}
+}

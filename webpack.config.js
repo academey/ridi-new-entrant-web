@@ -3,10 +3,11 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   mode: "development",
-  entry: "./src/client/index.js",
+  entry: "./src/client/index.tsx",
   output: {
-    path: `${__dirname}`,
-    filename: "./public/js/bundle.js"
+    path: path.resolve(__dirname, 'build'),
+    publicPath: "http://localhost:3000/",
+    filename: "bundle.js"
   },
   module: {
     rules: [
@@ -14,24 +15,19 @@ module.exports = {
         test: /\.(tsx?)|(jsx?)$/,
         loader: "babel-loader",
         exclude: [/node_modules/]
-      },
-      {
-        test: /\.tsx?$/,
-        use: "ts-loader",
-        exclude: /node_modules/
       }
     ]
   },
   devServer: {
     host: "0.0.0.0",
     port: 3000,
+    hot: true,
+    historyApiFallback: true,
+    index:'build/index.html',
     proxy: {
       "/api/**": "http://localhost:8080",
-      changeOrigin: true
-    }
+    },
   },
-  // devtool: "source-map",
-  // target: "node",
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".jsx", ".json"]
   },
