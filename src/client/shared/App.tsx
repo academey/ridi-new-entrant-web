@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
 import { Route, Switch } from 'react-router-dom';
 
-import { About, Book, Home } from '../pages';
+import { AboutPage, BookPage, HomePage } from '../pages';
 
 class App extends Component {
     public render() {
         return (
             <div>
                 <Switch>
-                    <Route exact={true} path="/" component={Home}/>
+                    <Route exact={true} path="/" component={HomePage}/>
+                    <Route path="/authors" component={BookPage}/>
                     {/*<Route path="/books/:id" component={About}/>*/}
-                    <Route path="/books" component={Book}/>
+                    <Route path="/books" component={BookPage}/>
                 </Switch>
             </div>
         );

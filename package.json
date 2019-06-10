@@ -13,6 +13,25 @@
     "server": "nodemon --exec ts-node src/server/index.ts",
     "dev": "concurrently \"npm run server\" \"npm run client\""
   },
+  "jest": {
+    "verbose": true,
+    "transform": {
+      "^.+\\.(ts|tsx)$": "ts-jest",
+      "^.+\\.(js|jsx)$": "babel-jest"
+    },
+    "testRegex": "\\.test\\.(ts|js)$",
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "moduleDirectories": ["node_modules", "src"],
+    "globals": {
+      "ts-jest": {
+        "tsConfig": "tsconfig.json",
+        "diagnostics": true
+      }
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/academey/ridi-new-entrant-web.git"
@@ -37,10 +56,12 @@
     "concurrently": "^4.1.0",
     "cors": "^2.8.5",
     "cross-env": "^5.2.0",
+    "debug": "^4.1.1",
     "express": "^4.17.1",
     "html-webpack-plugin": "^3.2.0",
     "koa": "^2.7.0",
     "mariadb": "^2.0.5",
+    "morgan": "^1.9.1",
     "nodemon": "^1.19.1",
     "npm-run-all": "^4.1.5",
     "path": "~0.12.7",
@@ -69,16 +90,23 @@
     "@babel/preset-typescript": "^7.3.3",
     "@babel/runtime": "^7.4.3",
     "@emotion/core": "^10.0.10",
+    "@ridi/tslint-config": "^0.1.0",
     "@types/css-font-loading-module": "^0.0.2",
+    "@types/express": "^4.16.1",
+    "@types/jest": "^24.0.13",
+    "@types/morgan": "^1.7.35",
+    "@types/node": "^12.0.7",
     "@types/react": "^16.8.19",
     "@types/react-dom": "^16.8.4",
-    "@ridi/tslint-config": "^0.1.0",
-    "@types/express": "^4.16.1",
-    "@types/node": "^12.0.4",
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
+    "babel-jest": "^24.8.0",
     "babel-loader": "^8.0.6",
     "babel-preset-env": "^1.7.0",
     "jest": "^24.8.0",
+    "supertest": "^4.0.2",
+    "tmp": "^0.1.0",
+    "ts-jest": "^24.0.2",
     "ts-node": "^8.2.0",
     "tslint": "^5.17.0",
     "typescript": "^3.5.1",

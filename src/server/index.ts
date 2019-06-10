@@ -1,28 +1,44 @@
 import * as cors from 'cors';
-import * as express from 'express';
+import * as debug from 'debug';
+import * as http from 'http';
 
-import models from '../database/models/index';
-import route from './routes';
+import App from './App';
 
-const app = express();
-const port = 8080;
+debug('ts-express:server');
 
-app.use(cors());
+const port = normalizePort(process.env.PORT || 8080);
+App.set('port', port);
+App.use(cors());
+const server = http.createServer(App);
 
-// TODO: force 는 개발 환경에서만 쓰도록
-models.sequelize.sync({force: true}).then( () => {
-  console.log('동기화 성공');
-}).catch((err) => {
-  console.log('연결 실패');
-  console.log(err);
-});
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
 
-app.get('/', (req: express.Request, res: express.Response) => {
-  res.send('This is API Server for ridi new entrant web!');
-});
+function normalizePort(val: number|string): number|string|boolean {
+  const p: number = (typeof val === 'string') ? parseInt(val, 10) : val;
+  if (isNaN(p)) { return val; } else if (p >= 0) { return p; } else { return false; }
+}
 
-app.listen(port, () => {
-  console.log(`Express listening on port ${port}.`);
-});
+function onError(error: NodeJS.ErrnoException): void {
+  if (error.syscall !== 'listen') { throw error; }
+  const bind = (typeof port === 'string') ? 'Pipe ' + port : 'Port ' + port;
+  switch (error.code) {
+    case 'EACCES':
+      console.error(`${bind} requires elevated privileges`);
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(`${bind} is already in use`);
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
 
-route(app);
+function onListening(): void {
+  const addr: any = server.address();
+  const bind = (typeof addr === 'string') ? `pipe ${addr}` : `port ${addr.port}`;
+  debug(`Listening on ${bind}`);
+}
