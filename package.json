@@ -24,7 +24,10 @@
       "ts",
       "js"
     ],
-    "moduleDirectories": ["node_modules", "src"],
+    "moduleDirectories": [
+      "node_modules",
+      "src"
+    ],
     "globals": {
       "ts-jest": {
         "tsConfig": "tsconfig.json",
@@ -53,17 +56,24 @@
     "babel-preset-es2016": "^6.16.0",
     "babel-preset-react": "^6.0.0",
     "babel-runtime": "^6.26.0",
+    "bcrypt": "^3.0.6",
+    "body-parser": "^1.19.0",
     "concurrently": "^4.1.0",
     "cors": "^2.8.5",
     "cross-env": "^5.2.0",
     "debug": "^4.1.1",
+    "dotenv": "^8.0.0",
     "express": "^4.17.1",
     "html-webpack-plugin": "^3.2.0",
+    "jsonwebtoken": "^8.5.1",
     "koa": "^2.7.0",
     "mariadb": "^2.0.5",
     "morgan": "^1.9.1",
     "nodemon": "^1.19.1",
     "npm-run-all": "^4.1.5",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0",
     "path": "~0.12.7",
     "react": "~16.6.0",
     "react-dom": "~16.6.0",

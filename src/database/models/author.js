@@ -1,5 +1,5 @@
 'use strict';
-module.exports = (sequelize, DataTypes) => {
+export default function (sequelize, DataTypes) {
   const author = sequelize.define('author', {
     name: {
       type: DataTypes.STRING,
@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   author.associate = function(models) {
     // associations can be defined here
+    author.hasMany(models.book)
   };
   return author;
 };
