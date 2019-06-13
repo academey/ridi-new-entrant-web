@@ -8,7 +8,11 @@
     "dialectOptions": {
       "timezone": "Etc/GMT-9"
     },
-    "timezone": "Etc/GMT-9"
+    "timezone": "Etc/GMT-9",
+    "define" : {
+      "freezeTableName": true
+    }
+
   },
   "test": {
   "username": "root",
@@ -19,7 +23,10 @@
     "dialectOptions": {
       "timezone": "Etc/GMT-9"
     },
-    "timezone": "Etc/GMT-9"
+    "timezone": "Etc/GMT-9",
+    "define" : {
+      "freezeTableName": true
+    }
   },
   "production": {
 "username": "root",
@@ -30,6 +37,9 @@
     "dialectOptions": {
       "timezone": "Etc/GMT-9"
     },
-    "timezone": "Etc/GMT-9"
-}
+    "timezone": "Etc/GMT-9",
+    "define" : {
+      "freezeTableName": true
+    }
+  }
 }

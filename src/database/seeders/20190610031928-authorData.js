@@ -12,7 +12,7 @@ module.exports = {
         isBetaMember: false
       }], {});
     */
-    return queryInterface.bulkInsert('authors', [{
+    return queryInterface.bulkInsert('Author', [{
       name: 'John Doe',
       desc: "test",
       createdAt:'2018-12-04',
@@ -40,6 +40,6 @@ module.exports = {
       Example:
       return queryInterface.bulkDelete('People', null, {});
     */
-    return queryInterface.bulkDelete('authors', null, {});
+    return queryInterface.bulkDelete('Author', null, {});
   }
 };

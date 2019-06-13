@@ -1,10 +1,6 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const book = sequelize.define('book', {
-    authorId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
+  const Book = sequelize.define('Book', {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -14,10 +10,9 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
   }, {});
-  book.associate = function(models) {
-    book.belongsTo(models.author, {
-      foreignKey: 'authorId'
-    });
+  Book.associate = function(models) {
+    Book.belongsToMany(models.Author, { through: 'AuthorBook' });
+    Book.hasOne(models.BookReservation, { foreignKey: 'bookId' });
   };
-  return book;
+  return Book;
 };

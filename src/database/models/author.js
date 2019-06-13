@@ -1,6 +1,6 @@
 'use strict';
 export default function (sequelize, DataTypes) {
-  const author = sequelize.define('author', {
+  const Author = sequelize.define('Author', {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -10,9 +10,8 @@ export default function (sequelize, DataTypes) {
       allowNull: false,
     },
   }, {});
-  author.associate = function(models) {
-    // associations can be defined here
-    author.hasMany(models.book)
+  Author.associate = function(models) {
+    Author.belongsToMany(models.Book, { through: 'AuthorBook' });
   };
-  return author;
+  return Author;
 };

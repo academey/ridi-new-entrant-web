@@ -12,7 +12,7 @@ module.exports = {
         isBetaMember: false
       }], {});
     */
-    return queryInterface.bulkInsert('Users', [{
+    return queryInterface.bulkInsert('User', [{
       email: 'a@b.c',
       password: "password",
       createdAt:'2018-12-04',
@@ -40,7 +40,7 @@ module.exports = {
       Example:
       return queryInterface.bulkDelete('People', null, {});
     */
-    return queryInterface.bulkDelete('Users', null, {});
+    return queryInterface.bulkDelete('User', null, {});
 
   }
 };
