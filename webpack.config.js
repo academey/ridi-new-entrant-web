@@ -35,5 +35,12 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: "./public/index.html"
     })
-  ]
+  ],
+  // https://github.com/peaksandpies/universal-analytics/issues/58
+  node: {
+    console: true,
+    fs: 'empty',
+    net: 'empty',
+    tls: 'empty'
+  }
 };

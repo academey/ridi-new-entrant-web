@@ -1,17 +1,22 @@
-import requesreeue from '../utils/request';
+import request from 'request-promise';
 
-import {success} from '../utils/mockResponseBody';
+const URL = 'http://0.0.0.0:8080';
 
-const URL = 'http://localhost:8080';
-const requestScope = `${URL}/api/book`;
+function getRequestURL(url: string) {
+    return `${URL}/api/${url}`;
+}
 
-export async function requestBooks(): Promise<APIResponseInterface<Book>> {
-    const requestURL = requestScope;
+export async function requestBooks() {
+    const data = await request({
+        uri: getRequestURL('book/3'),
+        headers: {
+            'User-Agent': 'Request-Promise',
+        },
+        json: true,
+    });
+    console.log('data is ', data);
 
-    const books: Book[] = await requesreeue(requestURL, { method: 'GET' });
-
-    const data = success({ books }, '요청 성공.');
-    return data;
+    return data.body;
 }
 
 export interface APIResponseInterface<T> {

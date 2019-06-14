@@ -1,23 +1,28 @@
 import React, {Component} from 'react';
 import {APIResponseInterface, Book, requestBooks} from '../../api/index';
 
-class BookPage extends Component {
-    public state = {
+interface IBookPageState {
+    books: string[];
+}
+
+class BookPage extends Component<{}, IBookPageState> {
+    public state: IBookPageState = {
         books: [],
     };
 
     public componentDidMount(): void {
 
-        requestBooks().then((responseBooks: APIResponseInterface<Book>) => {
-            this.setState({
-                books: responseBooks.data.books,
-            });
+        requestBooks().then((responseBooks) => {
+            console.log('responseBooks is ', responseBooks);
+            // this.setState({
+            //     books: responseBooks.data.books,
+            // });
         });
     }
 
     public getBooks = () => {
         console.log('this.state.books is ', this.state.books);
-        return this.state.books.map((book: Book) => {
+        return this.state.books.map((book: any) => {
             return <div key={'test'}>{book.name}</div>;
         });
 

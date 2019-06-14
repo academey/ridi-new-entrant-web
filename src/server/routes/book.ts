@@ -1,7 +1,6 @@
 import {NextFunction, Request, Response, Router} from 'express';
-import * as moment from 'moment';
-
-import models from '../../database/models/index';
+import {Book} from '../../database/models/Book';
+import {BookReservation} from '../../database/models/BookReservation';
 import {isAuthenticated} from '../passport';
 
 export class BookRouter {
@@ -13,7 +12,7 @@ export class BookRouter {
 
     public async createOne(req: Request, res: Response, next: NextFunction) {
         const { name , desc} = req.body;
-        const book = await models.Book.create({
+        const book = await Book.create({
             name,
             desc,
         });
@@ -22,12 +21,12 @@ export class BookRouter {
             .send({
                 message: 'Success',
                 status: res.status,
-                book: book.dataValues,
+                book,
             });
     }
 
     public async getAll(req: Request, res: Response, next: NextFunction) {
-        const books = await models.Book.findAll({ include: [ models.BookReservation ] });
+        const books = await Book.findAll({ include: [ BookReservation ] });
         res.status(200)
             .send({
                 message: 'Success',
@@ -38,7 +37,7 @@ export class BookRouter {
 
     public async getOne(req: Request, res: Response, next: NextFunction) {
         const query = parseInt(req.params.id, 10);
-        const book = await models.Book.findByPk(query);
+        const book = await Book.findByPk(query);
         if (book) {
             res.status(200)
                 .send({
@@ -58,7 +57,7 @@ export class BookRouter {
     public async deleteOne(req: Request, res: Response, next: NextFunction) {
         const query = parseInt(req.params.id, 10);
         try {
-            const destroyedCount = await models.Book.destroy({
+            const destroyedCount = await Book.destroy({
                 where: {
                     id: query,
                 },
@@ -87,8 +86,8 @@ export class BookRouter {
 
     public async borrow(req: any, res: Response, next: NextFunction) {
         const { bookId, endAt } = req.body;
-        const userId = req.user.id;
-        const bookReservation = await models.BookReservation.findOne({
+        const userId = req.User.id;
+        const bookReservation = await BookReservation.findOne({
             where: {
                 bookId,
             },
@@ -101,13 +100,13 @@ export class BookRouter {
                 });
         }
 
-        const createdBookReservation = await models.BookReservation.create({
+        const createdBookReservation = await BookReservation.create({
             userId,
             bookId,
             endAt,
         });
 
-        // const book = await models.Book.findByPk(query);
+        // const book = await Book.findByPk(query);
         if (createdBookReservation) {
             res.status(200)
                 .send({
@@ -126,8 +125,8 @@ export class BookRouter {
 
     public async return(req: any, res: Response, next: NextFunction) {
         const { bookId } = req.body;
-        const userId = req.user.id;
-        const bookReservation = await models.BookReservation.findOne({
+        const userId = req.User.id;
+        const bookReservation = await BookReservation.findOne({
             where: {
                 bookId,
             },
@@ -146,7 +145,7 @@ export class BookRouter {
                 });
         }
 
-        const deletedBookReservation = await models.BookReservation.destroy({
+        const deletedBookReservation = await BookReservation.destroy({
             where: {
                 userId,
                 bookId,

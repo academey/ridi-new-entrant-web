@@ -1,9 +1,9 @@
 import * as bcrypt from 'bcrypt';
-import * as passport from 'passport';
+import passport from 'passport';
 import { ExtractJwt as ExtractJWT, Strategy as JWTStrategy } from 'passport-jwt';
 import { Strategy as LocalStrategy} from 'passport-local';
 
-import models from '../database/models';
+import {User} from '../database/models/User';
 
 const BCRYPT_SALT_ROUNDS = 12;
 
@@ -13,7 +13,7 @@ passport.use(new LocalStrategy({
     async (email, password, cb) => {
         let user;
         try {
-            user = await models.User.findOne({where: {email}});
+            user = await User.findOne({where: {email}});
         } catch (err) {
             return cb(err);
         }
@@ -33,10 +33,10 @@ passport.use('register', new LocalStrategy({
     async (email, password, cb) => {
         let user;
         try {
-            user = await models.User.findOne({where: {email}});
+            user = await User.findOne({where: {email}});
             if (user) { return cb(null, false, { message: 'username already taken.' }); }
             const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
-            const createdUser = await models.User.create({
+            const createdUser = await User.create({
                 email,
                 password: hashedPassword,
             });
@@ -52,7 +52,7 @@ passport.use(new JWTStrategy({
     },
     async (jwtPayload, cb) => {
         try {
-            const user = await models.User.findByPk(jwtPayload.id);
+            const user = await User.findByPk(jwtPayload.id);
             return cb(null, user);
         } catch (err) {
             return cb(err);

@@ -1,19 +1,25 @@
-'use strict';
-module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define('User', {
-    email: {
-      type: DataTypes.STRING,
-      unique: true,
-      allowNull: false,
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-  }, {});
-  User.associate = (models) => {
-    // associations can be defined here
-  };
+import {AllowNull, Column, CreatedAt, HasOne, Model, Table, UpdatedAt} from 'sequelize-typescript';
+import {BookReservation} from './BookReservation';
 
-  return User;
-};
+@Table
+export class User extends Model<User> {
+
+  @AllowNull(false)
+  @Column
+  public email!: string;
+
+  @AllowNull(false)
+  @Column
+  public password!: string;
+
+  @CreatedAt
+  @Column
+  public createdAt!: Date;
+
+  @UpdatedAt
+  @Column
+  public updatedAt!: Date;
+
+  @HasOne(() => BookReservation, 'userId')
+  public bookReservation?: BookReservation;
+}

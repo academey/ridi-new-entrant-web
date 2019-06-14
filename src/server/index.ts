@@ -1,8 +1,8 @@
-import * as cors from 'cors';
-import * as debug from 'debug';
+import debug from 'debug';
 import * as http from 'http';
 
 import { config } from 'dotenv';
+
 config();
 import App from './App';
 
@@ -10,7 +10,7 @@ debug('ts-express:server');
 
 const port = normalizePort(process.env.PORT || 8080);
 App.set('port', port);
-App.use(cors());
+
 const server = http.createServer(App);
 
 server.listen(port);

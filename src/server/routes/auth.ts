@@ -18,7 +18,7 @@ export class AuthRouter {
                 });
             }
 
-            req.login(user, {session: false}, (loginError) => {
+            req.login(user, {session: false}, (loginError: any) => {
                 if (loginError) {
                     res.send(loginError);
                 }
@@ -28,7 +28,7 @@ export class AuthRouter {
         })(req, res);
     }
 
-    public signIn(req: any, res: Response, next: NextFunction) {
+    public signIn(req: Request, res: Response, next: NextFunction) {
         passport.authenticate('local', {session: false}, (err, user, info) => {
             if (err || !user) {
                 return res.status(400).json({
@@ -52,7 +52,7 @@ export class AuthRouter {
             failureRedirect: '/api/auth/sign_in_test' })(req, res, next);
     }
 
-    public successTest(req: any, res: Response, next: NextFunction) {
+    public successTest(req: Request, res: Response, next: NextFunction) {
         console.log(req.user);
         res.json({
             test: 'test',

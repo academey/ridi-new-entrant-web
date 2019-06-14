@@ -1,8 +1,6 @@
 import React from 'react';
 
-
-const About = ({match}) => {
-    console.log(match);
+const About: React.FC = () => {
     return (
         <div>
             <h2>About\</h2>

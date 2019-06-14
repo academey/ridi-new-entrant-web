@@ -1,5 +1,6 @@
 import {NextFunction, Request, Response, Router} from 'express';
-import models from '../../database/models/index';
+
+import {Author} from '../../database/models/Author';
 
 export class AuthorRouter {
     constructor() {
@@ -10,7 +11,7 @@ export class AuthorRouter {
 
     public async createOne(req: Request, res: Response, next: NextFunction) {
         const { name , desc} = req.body;
-        const author = await models.author.create({
+        const author = await Author.create({
             name,
             desc,
         });
@@ -19,12 +20,12 @@ export class AuthorRouter {
             .send({
                 message: 'Success',
                 status: res.status,
-                author: author.dataValues,
+                author,
             });
     }
 
     public async getAll(req: Request, res: Response, next: NextFunction) {
-        const authors = await models.author.findAll();
+        const authors = await Author.findAll();
         res.status(200)
             .send({
                 message: 'Success',
@@ -35,7 +36,7 @@ export class AuthorRouter {
 
     public async getOne(req: Request, res: Response, next: NextFunction) {
         const query = parseInt(req.params.id, 10);
-        const author = await models.author.findByPk(query);
+        const author = await Author.findByPk(query);
         if (author) {
             res.status(200)
                 .send({
@@ -55,7 +56,7 @@ export class AuthorRouter {
     public async deleteOne(req: Request, res: Response, next: NextFunction) {
         const query = parseInt(req.params.id, 10);
         try {
-            const destroyedCount = await models.author.destroy({
+            const destroyedCount = await Author.destroy({
                 where: {
                     id: query,
                 },
