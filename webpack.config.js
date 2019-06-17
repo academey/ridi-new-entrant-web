@@ -29,7 +29,12 @@ module.exports = {
     },
   },
   resolve: {
-    extensions: [".ts", ".tsx", ".js", ".jsx", ".json"]
+    extensions: [".ts", ".tsx", ".js", ".jsx", ".json"],
+    // https://engineering.huiseoul.com/%EB%A6%AC%EC%95%A1%ED%8A%B8-%EC%83%81%EB%8C%80%EA%B2%BD%EB%A1%9C-%EC%A0%88%EB%8C%80%EA%B2%BD%EB%A1%9C-%EB%B3%80%EA%B2%BD-1485babb5198
+    modules: [
+      path.join(__dirname, "src"),
+      "node_modules"
+    ]
   },
   plugins: [
     new HtmlWebpackPlugin({

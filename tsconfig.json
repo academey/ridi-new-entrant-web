@@ -13,11 +13,11 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "outDir": "dist",
-    "baseUrl": ".",
     "jsx": "react",
+    "baseUrl": ".",
     "paths": {
       "*": [
-        "src/types/*"
+        "src/*"
       ]
     }
   },
