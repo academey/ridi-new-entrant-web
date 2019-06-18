@@ -1,12 +1,14 @@
 import * as React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 
-import App from './shared/App';
+import Layout from './pages/Layout';
 
 const Root = () => {
-    return (<BrowserRouter>
-        <App/>
-    </BrowserRouter>);
+  return (
+    <BrowserRouter>
+      <Layout />
+    </BrowserRouter>
+  );
 };
 
 export default Root;

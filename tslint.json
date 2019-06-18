@@ -1,5 +1,5 @@
 {
-  "extends": ["tslint:recommended", "tslint-react", "tslint-config-prettier", "@ridi/tslint-config"],
+  "extends": ["@ridi/tslint-config"],
   "rules": {
     "no-console": false
   }
