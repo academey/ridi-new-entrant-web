@@ -3,9 +3,17 @@ import { fromJS } from 'immutable';
 
 // types
 const resource = 'book';
-export const BOOK_GET_LIST_DATA_START = `${resource}/BOOK_GET_DATA_START`;
+export const BOOK_GET_LIST_DATA_START = `${resource}/BOOK_GET_LIST_DATA_START`;
 export const BOOK_GET_LIST_DATA_SUCCEEDED = `${resource}/BOOK_GET_LIST_DATA_SUCCEEDED`;
 export const BOOK_GET_LIST_DATA_FAILED = `${resource}/BOOK_GET_LIST_DATA_FAILED`;
+
+export const BOOK_BORROW_START = `${resource}/BOOK_BORROW_START`;
+export const BOOK_BORROW_SUCCEEDED = `${resource}/BOOK_BORROW_SUCCEEDED`;
+export const BOOK_BORROW_FAILED = `${resource}/BOOK_BORROW_FAILED`;
+
+export const BOOK_RETURN_START = `${resource}/BOOK_RETURN_START`;
+export const BOOK_RETURN_SUCCEEDED = `${resource}/BOOK_RETURN_SUCCEEDED`;
+export const BOOK_RETURN_FAILED = `${resource}/BOOK_RETURN_FAILED`;
 
 export interface IBookState {
   isLoading: boolean;
