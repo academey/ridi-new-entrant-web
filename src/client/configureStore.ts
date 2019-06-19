@@ -8,9 +8,7 @@ import rootSaga from './sagas';
 import createReducer from './store';
 
 export const history = createBrowserHistory();
-export default function configureStore(
-  initialState = { router: {}, book: {} },
-): Store<IStoreState> {
+export default function configureStore(initialState = {}): Store<IStoreState> {
   const sagaMiddleware = createSagaMiddleware();
 
   const middleWares = [sagaMiddleware, routerMiddleware(history)];

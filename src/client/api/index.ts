@@ -12,3 +12,43 @@ export async function requestBook(id: string): Promise<IApiResponse> {
 
   return data;
 }
+
+interface ILoginParam {
+  email: string;
+  password: string;
+}
+
+export async function login({
+  email,
+  password,
+}: ILoginParam): Promise<IApiResponse> {
+  const data: IApiResponse = await requestApi('auth/login', {
+    method: 'POST',
+    body: {
+      email,
+      password,
+    },
+  });
+
+  return data;
+}
+
+interface IRegisterParam {
+  email: string;
+  password: string;
+}
+
+export async function register({
+  email,
+  password,
+}: IRegisterParam): Promise<IApiResponse> {
+  const data: IApiResponse = await requestApi('auth/register', {
+    method: 'POST',
+    body: {
+      email,
+      password,
+    },
+  });
+
+  return data;
+}

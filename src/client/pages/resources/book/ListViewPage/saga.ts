@@ -1,9 +1,8 @@
 import { requestBooks } from 'client/api';
 import { actionCreators, BOOK_GET_LIST_DATA_START } from 'client/store/book';
-import { call, put, takeEvery } from 'redux-saga/effects';
+import { call, fork, put, takeEvery } from 'redux-saga/effects';
 
-// worker Saga: 비동기 증가 태스크를 수행할겁니다.
-export function* bookGetListDataStartGenerator() {
+function* bookGetListDataStartGenerator() {
   try {
     const { data, message } = yield call(requestBooks);
 
@@ -13,7 +12,10 @@ export function* bookGetListDataStartGenerator() {
   }
 }
 
-// watcher Saga: 각각의 INCREMENT_ASYNC 에 bookGetListDataStartGenerator 태스크를 생성할겁니다.
-export function* bookGetListDataStartWatcher() {
+function* bookGetListDataStartWatcher() {
   yield takeEvery(BOOK_GET_LIST_DATA_START, bookGetListDataStartGenerator);
+}
+
+export default function* rootSaga() {
+  yield fork(bookGetListDataStartWatcher);
 }

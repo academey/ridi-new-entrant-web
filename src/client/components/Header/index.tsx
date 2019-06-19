@@ -1,16 +1,13 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import {
   Collapse,
-  DropdownItem,
-  DropdownMenu,
-  DropdownToggle,
   Nav,
   Navbar,
   NavbarBrand,
   NavbarToggler,
   NavItem,
   NavLink,
-  UncontrolledDropdown,
 } from 'reactstrap';
 
 const Header = () => (
@@ -21,24 +18,15 @@ const Header = () => (
       <Collapse navbar={true}>
         <Nav className="ml-auto" navbar={true}>
           <NavItem>
-            <NavLink href="/components/">Login</NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink href="https://github.com/reactstrap/reactstrap">
-              GitHub
+            <NavLink tag={Link} to="/auth/login/">
+              로그인
             </NavLink>
           </NavItem>
-          <UncontrolledDropdown nav={true} inNavbar={true}>
-            <DropdownToggle nav={true} caret={true}>
-              Options
-            </DropdownToggle>
-            <DropdownMenu right={true}>
-              <DropdownItem>Option 1</DropdownItem>
-              <DropdownItem>Option 2</DropdownItem>
-              <DropdownItem divider={true} />
-              <DropdownItem>Reset</DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown>
+          <NavItem>
+            <NavLink tag={Link} to="/auth/register/">
+              회원가입
+            </NavLink>
+          </NavItem>
         </Nav>
       </Collapse>
     </Navbar>

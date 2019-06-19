@@ -17,10 +17,11 @@ import {
   Col,
 } from 'reactstrap';
 import styled from 'styled-components';
+
 interface IBookPageProps {
   book: Book;
   books: Book[];
-  getListDataStart: any;
+  getListDataStart: () => void;
 }
 interface IBookPageState {
   books: string[];
@@ -37,7 +38,7 @@ class BookPage extends Component<IBookPageProps, IBookPageState> {
       display: flex;
     `;
     const bookCards = this.props.books.map((book: Book) => (
-      <Card style={{ width: 200, margin: 10 }}>
+      <Card key={book.id} style={{ width: 200, margin: 10 }}>
         <CardImg
           top={true}
           width="10px"
@@ -67,7 +68,7 @@ class BookPage extends Component<IBookPageProps, IBookPageState> {
 }
 
 const mapStateToProps = ({ book }: IStoreState) => ({
-  books: book.listData,
+  books: book.get('listData'),
 });
 
 const mapDispatchProps = (dispatch: Dispatch) => ({

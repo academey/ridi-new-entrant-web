@@ -1,13 +1,20 @@
 import * as React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 
-import Layout from './pages/Layout';
+import Header from 'client/components/Header';
+import { ErrorBoundary } from 'client/pages';
+import Notifications from 'react-notify-toast';
+import Routing from './pages/Routing';
 
 const Root = () => {
   return (
-    <BrowserRouter>
-      <Layout />
-    </BrowserRouter>
+    <div>
+      <Notifications />
+      <Header />
+      <ErrorBoundary>
+        <Routing />
+      </ErrorBoundary>
+    </div>
   );
 };
 

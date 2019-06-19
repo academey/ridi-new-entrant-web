@@ -2,12 +2,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { Book } from '../../database/models/Book';
 import { BookReservation } from '../../database/models/BookReservation';
 import { isAuthenticated } from '../passport';
-import {
-  makeFailResponse,
-  makeResponse,
-  makeSuccessResponse,
-  RESPONSE_STATUS,
-} from '../utils/result';
+import { makeFailResponse, makeSuccessResponse } from '../utils/result';
 
 export class BookRouter {
   constructor() {
@@ -23,9 +18,7 @@ export class BookRouter {
       desc,
     });
 
-    res
-      .status(200)
-      .send(makeResponse(RESPONSE_STATUS.SUCCESS, { book }, '책 생성 완료.'));
+    res.status(201).send(makeSuccessResponse({ book }, '책 생성 완료.'));
   }
 
   public async getAll(req: Request, res: Response, next: NextFunction) {

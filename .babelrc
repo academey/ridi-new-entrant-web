@@ -6,8 +6,12 @@
     ["@babel/plugin-transform-classes", { "loose": true }],
     ["@babel/plugin-transform-proto-to-assign"],
     ["@babel/plugin-transform-runtime"],
-    ["module-resolver",{
-      "root": ["./src"]
+    ["module-resolver", {
+      "root": ["./src"],
+      "alias": {
+        "test": "./test",
+        "underscore": "lodash"
+      }
     }]
   ],
   "env": {

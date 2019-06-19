@@ -7,7 +7,10 @@ function getRequestURL(url: string) {
   return `${URL}/api/${url}`;
 }
 
-export default async function requestApi(path: string): Promise<IApiResponse> {
+export default async function requestApi(
+  path: string,
+  options?: object,
+): Promise<IApiResponse> {
   try {
     const data: IApiResponse = await request({
       uri: getRequestURL(path),
@@ -15,6 +18,7 @@ export default async function requestApi(path: string): Promise<IApiResponse> {
         'User-Agent': 'Request-Promise',
       },
       json: true,
+      ...options,
     });
     if (data.status !== RESPONSE_STATUS.SUCCESS) {
       throw new Error(data.message);

@@ -1,5 +1,7 @@
+import { AuthState } from 'client/store/auth';
+import { IStoreAction } from 'client/store/index';
 import { Book } from 'database/models/Book';
-import { fromJS } from 'immutable';
+import { fromJS, Record } from 'immutable';
 
 // types
 const resource = 'book';
@@ -15,31 +17,25 @@ export const BOOK_RETURN_START = `${resource}/BOOK_RETURN_START`;
 export const BOOK_RETURN_SUCCEEDED = `${resource}/BOOK_RETURN_SUCCEEDED`;
 export const BOOK_RETURN_FAILED = `${resource}/BOOK_RETURN_FAILED`;
 
-export interface IBookState {
-  isLoading: boolean;
-  error: boolean;
-  errorMessage: string;
-  data: Book;
-  listData: Book[];
-}
-
-const initialState: IBookState = {
-  isLoading: false,
-  error: false,
-  errorMessage: '',
+const BookStateRecord = Record({
+  getListDataLoading: false,
+  getListDataError: false,
+  getListDataErrorMessage: '',
   data: fromJS({}),
   listData: fromJS([]),
-};
+});
 
-// actions
-interface IAction {
-  type: string;
-  data: any;
-  meta: {
-    id: number;
-  };
+export class BookState extends BookStateRecord {
+  public getListDataLoading: boolean;
+  public getListDataError: boolean;
+  public getListDataErrorMessage: string;
+  public data: Book;
+  public listData: Book[];
 }
 
+const initialState = new BookState();
+
+// actions
 function getListDataStart() {
   return {
     type: BOOK_GET_LIST_DATA_START,
@@ -54,10 +50,10 @@ function getListDataSucceeded(data: any, message: string) {
   };
 }
 
-function getListDataFailed(message: string) {
+function getListDataFailed(error: Error) {
   return {
     type: BOOK_GET_LIST_DATA_FAILED,
-    message,
+    error,
   };
 }
 
@@ -68,20 +64,27 @@ export const actionCreators = {
 };
 
 // reducers
-export function bookReducer(state = initialState, action: IAction): IBookState {
+export function bookReducer(
+  currentState = initialState,
+  action: IStoreAction,
+): BookState {
   switch (action.type) {
     case BOOK_GET_LIST_DATA_START:
-      return {
-        ...state,
-        data: undefined,
-      };
+      return currentState.withMutations((state) => {
+        state.set('getListDataLoading', true).set('getListDataError', false);
+      });
     case BOOK_GET_LIST_DATA_SUCCEEDED:
-      console.log(action);
-      return {
-        ...state,
-        listData: action.data.books,
-      };
+      return currentState.withMutations((state) => {
+        state
+          .set('getListDataLoading', false)
+          .set('getListDataError', false)
+          .set('listData', action.data.books);
+      });
+    case BOOK_GET_LIST_DATA_FAILED:
+      return currentState.withMutations((state) => {
+        state.set('getListDataLoading', false).set('getListDataError', true);
+      });
     default:
-      return state;
+      return currentState;
   }
 }
