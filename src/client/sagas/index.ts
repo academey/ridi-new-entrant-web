@@ -1,3 +1,4 @@
+import rootSagas from 'client/containers/Root/saga';
 import authLoginPageSagas from 'client/pages/auth/LoginPage/saga.ts';
 import authRegisterPageSagas from 'client/pages/auth/RegisterPage/saga.ts';
 import bookListViewPageSagas from 'client/pages/resources/book/ListViewPage/saga';
@@ -8,5 +9,6 @@ export default function* rootSaga() {
     bookListViewPageSagas(),
     authLoginPageSagas(),
     authRegisterPageSagas(),
+    rootSagas(),
   ]);
 }

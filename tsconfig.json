@@ -17,11 +17,16 @@
     "baseUrl": ".",
     "paths": {
       "*": [
-        "src/*"
-      ]
+        "src/**/*"
+      ],
+      "alias": {
+        "test": "./test",
+        "underscore": "lodash"
+      }
     }
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "test/**/*"
   ]
 }

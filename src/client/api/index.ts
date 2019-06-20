@@ -33,6 +33,23 @@ export async function login({
   return data;
 }
 
+interface ILoginCheckParam {
+  accessToken: string;
+}
+
+export async function loginCheck({
+  accessToken,
+}: ILoginCheckParam): Promise<IApiResponse> {
+  const data: IApiResponse = await requestApi('auth/login_check', {
+    method: 'GET',
+    auth: {
+      bearer: accessToken,
+    },
+  });
+
+  return data;
+}
+
 interface IRegisterParam {
   email: string;
   password: string;

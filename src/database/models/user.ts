@@ -1,9 +1,16 @@
-import {AllowNull, Column, CreatedAt, HasOne, Model, Table, UpdatedAt} from 'sequelize-typescript';
-import {BookReservation} from './BookReservation';
+import {
+  AllowNull,
+  Column,
+  CreatedAt,
+  HasOne,
+  Model,
+  Table,
+  UpdatedAt,
+} from 'sequelize-typescript';
+import { BookReservation } from './BookReservation';
 
 @Table
 export class User extends Model<User> {
-
   @AllowNull(false)
   @Column
   public email!: string;

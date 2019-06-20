@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
@@ -12,23 +12,23 @@ module.exports = {
         isBetaMember: false
       }], {});
     */
-    return queryInterface.bulkInsert('User', [{
-      email: 'a@b.c',
+    return queryInterface.bulkInsert("User", [{
+      email: "a@b.c",
       password: "password",
-      createdAt:'2018-12-04',
-      updatedAt:'2018-12-04',
+      createdAt: "2018-12-04",
+      updatedAt: "2018-12-04",
     },
       {
-        email: 'b@b.c',
+        email: "b@b.c",
         password: "passwordword",
-        createdAt:'2018-12-04',
-        updatedAt:'2018-12-04',
+        createdAt: "2018-12-04",
+        updatedAt: "2018-12-04",
       }
-      ,{
-        email: 'c@b.c',
+      , {
+        email: "c@b.c",
         password: "passwordword",
-        createdAt:'2018-12-04',
-        updatedAt:'2018-12-04',
+        createdAt: "2018-12-04",
+        updatedAt: "2018-12-04",
       }], {});
   },
 
@@ -40,7 +40,7 @@ module.exports = {
       Example:
       return queryInterface.bulkDelete('People', null, {});
     */
-    return queryInterface.bulkDelete('User', null, {});
+    return queryInterface.bulkDelete("User", null, {});
 
-  }
+  },
 };

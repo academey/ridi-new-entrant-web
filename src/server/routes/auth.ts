@@ -2,6 +2,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 import * as jwt from 'jsonwebtoken';
 import passport from 'passport';
 
+import { isAuthenticated } from 'server/passport';
 import { makeFailResponse, makeSuccessResponse } from 'server/utils/result';
 
 export class AuthRouter {
@@ -48,6 +49,12 @@ export class AuthRouter {
     })(req, res);
   }
 
+  public loginCheck(req: Request, res: Response, next: NextFunction) {
+    const { user } = req;
+
+    return res.status(200).json(makeSuccessResponse({ user }, '로그인 성공~'));
+  }
+
   public signInTest(req: Request, res: Response, next: NextFunction) {
     passport.authenticate('local', {
       successRedirect: '/api/auth/success',
@@ -71,6 +78,7 @@ export class AuthRouter {
   public init() {
     this.router.post('/register', this.register);
     this.router.post('/login', this.login);
+    this.router.get('/login_check', isAuthenticated, this.loginCheck);
     this.router.post('/sign_in_test', this.signInTest);
     this.router.get('/success', this.successTest);
     this.router.get('/logout', this.logout);

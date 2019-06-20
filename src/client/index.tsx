@@ -4,8 +4,8 @@ import * as ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Root from 'client/containers/Root';
 import configureStore, { history } from './configureStore';
-import Root from './Root';
 
 const store = configureStore();
 ReactDOM.render(

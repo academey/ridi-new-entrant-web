@@ -27,7 +27,7 @@ class LoginPage extends React.Component<
     const { loginStart } = this.props;
 
     loginStart(email, password);
-  }
+  };
 
   public render() {
     const {

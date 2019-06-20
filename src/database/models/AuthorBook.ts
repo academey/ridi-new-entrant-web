@@ -1,10 +1,16 @@
-import {Column, CreatedAt, ForeignKey, Model, Table, UpdatedAt} from 'sequelize-typescript';
-import {Author} from './Author';
-import {Book} from './Book';
+import {
+  Column,
+  CreatedAt,
+  ForeignKey,
+  Model,
+  Table,
+  UpdatedAt,
+} from 'sequelize-typescript';
+import { Author } from './Author';
+import { Book } from './Book';
 
 @Table
 export class AuthorBook extends Model<AuthorBook> {
-
   @ForeignKey(() => Author)
   @Column
   public authorId!: number;

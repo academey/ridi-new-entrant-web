@@ -1,64 +1,83 @@
 import * as bcrypt from 'bcrypt';
 import passport from 'passport';
-import { ExtractJwt as ExtractJWT, Strategy as JWTStrategy } from 'passport-jwt';
-import { Strategy as LocalStrategy} from 'passport-local';
+import {
+  ExtractJwt as ExtractJWT,
+  Strategy as JWTStrategy,
+} from 'passport-jwt';
+import { Strategy as LocalStrategy } from 'passport-local';
 
-import {User} from '../database/models/User';
+import { User } from '../database/models/User';
 
 const BCRYPT_SALT_ROUNDS = 12;
 
-passport.use(new LocalStrategy({
-        usernameField: 'email',
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: 'email',
     },
     async (email, password, cb) => {
-        let user;
-        try {
-            user = await User.findOne({where: {email}});
-        } catch (err) {
-            return cb(err);
-        }
+      let user;
+      try {
+        user = await User.findOne({ where: { email } });
+      } catch (err) {
+        return cb(err);
+      }
 
-        if (!user) { return cb(null, false, { message: 'Incorrect username.' }); }
-        const response = await bcrypt.compare(password, user.password);
-        if (!response) {
-            return cb(null, false, { message: 'Incorrect password.' });
-        }
+      if (!user) {
+        return cb(null, false, { message: 'Incorrect username.' });
+      }
+      const response = await bcrypt.compare(password, user.password);
+      if (!response) {
+        return cb(null, false, { message: 'Incorrect password.' });
+      }
 
-        return cb(null, user);
-    }));
+      return cb(null, user);
+    },
+  ),
+);
 
-passport.use('register', new LocalStrategy({
-        usernameField: 'email',
+passport.use(
+  'register',
+  new LocalStrategy(
+    {
+      usernameField: 'email',
     },
     async (email, password, cb) => {
-        let user;
-        try {
-            user = await User.findOne({where: {email}});
-            if (user) { return cb(null, false, { message: 'username already taken.' }); }
-            const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
-            const createdUser = await User.create({
-                email,
-                password: hashedPassword,
-            });
-            return cb(null, createdUser);
-        } catch (err) {
-            return cb(err);
+      let user;
+      try {
+        user = await User.findOne({ where: { email } });
+        if (user) {
+          return cb(null, false, { message: 'username already taken.' });
         }
-    }));
+        const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
+        const createdUser = await User.create({
+          email,
+          password: hashedPassword,
+        });
+        return cb(null, createdUser);
+      } catch (err) {
+        return cb(err);
+      }
+    },
+  ),
+);
 
-passport.use(new JWTStrategy({
-        jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-        secretOrKey   : process.env.JWT_SECRET,
+passport.use(
+  new JWTStrategy(
+    {
+      jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+      secretOrKey: process.env.JWT_SECRET,
     },
     async (jwtPayload, cb) => {
-        try {
-            const user = await User.findByPk(jwtPayload.id);
-            return cb(null, user);
-        } catch (err) {
-            return cb(err);
-        }
+      try {
+        const user = await User.findByPk(jwtPayload.id);
+        return cb(null, user);
+      } catch (err) {
+        return cb(err);
+      }
     },
-));
+  ),
+);
 
 // passport.serializeUser((user, cb) => {
 //     // 로그인에 성공했을 때, user 식별자 값을 passport 내부 세션에 저장해둔다.
@@ -78,4 +97,4 @@ passport.use(new JWTStrategy({
 //     cb(null, user);
 // });
 
-export const isAuthenticated = passport.authenticate('jwt', {session: false});
+export const isAuthenticated = passport.authenticate('jwt', { session: false });

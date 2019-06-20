@@ -6,6 +6,7 @@ import {
   REGISTER_START,
   REGISTER_SUCCEEDED,
 } from 'client/store/auth';
+import { setAccessToken } from 'client/utils/storage';
 import { push } from 'connected-react-router';
 import { notify } from 'react-notify-toast';
 import { call, fork, put, select, takeLatest } from 'redux-saga/effects';
@@ -25,7 +26,9 @@ function* registerStartWatcher() {
   yield takeLatest(REGISTER_START, registerStartGenerator);
 }
 
-function* registerSucceededGenerator() {
+function* registerSucceededGenerator(action: IStoreAction) {
+  // TODO: 나중에 시간되면 doesRememberThis 를 checkbox 로 입력받아서 변경하자
+  setAccessToken(action.data.token, true);
   yield call(notify.show, '회원가입 후 로그인 성공!!!', 'success');
   yield put(push('/'));
 }

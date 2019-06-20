@@ -26,7 +26,7 @@ class RegisterPage extends React.Component<
     const { registerStart } = this.props;
 
     registerStart(email, password);
-  }
+  };
 
   public render() {
     const {

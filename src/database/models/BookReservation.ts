@@ -1,7 +1,14 @@
-import {Column, CreatedAt, ForeignKey, Model, Table, UpdatedAt} from 'sequelize-typescript';
+import {
+  Column,
+  CreatedAt,
+  ForeignKey,
+  Model,
+  Table,
+  UpdatedAt,
+} from 'sequelize-typescript';
 
-import {Author} from './Author';
-import {Book} from './Book';
+import { Author } from './Author';
+import { Book } from './Book';
 
 @Table
 export class BookReservation extends Model<BookReservation> {

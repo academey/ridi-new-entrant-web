@@ -1,7 +1,15 @@
-import {AllowNull, BelongsToMany, Column, CreatedAt, Model, Table, UpdatedAt} from 'sequelize-typescript';
+import {
+  AllowNull,
+  BelongsToMany,
+  Column,
+  CreatedAt,
+  Model,
+  Table,
+  UpdatedAt,
+} from 'sequelize-typescript';
 
-import {AuthorBook} from './AuthorBook';
-import {Book} from './Book';
+import { AuthorBook } from './AuthorBook';
+import { Book } from './Book';
 
 @Table
 export class Author extends Model<Author> {

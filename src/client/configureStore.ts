@@ -3,7 +3,9 @@ import { routerMiddleware } from 'connected-react-router/immutable';
 import { createBrowserHistory } from 'history';
 import { fromJS } from 'immutable';
 import { applyMiddleware, compose, createStore, Store } from 'redux';
+import logger from 'redux-logger';
 import createSagaMiddleware from 'redux-saga';
+
 import rootSaga from './sagas';
 import createReducer from './store';
 
@@ -11,7 +13,8 @@ export const history = createBrowserHistory();
 export default function configureStore(initialState = {}): Store<IStoreState> {
   const sagaMiddleware = createSagaMiddleware();
 
-  const middleWares = [sagaMiddleware, routerMiddleware(history)];
+  // TODO : development 만 logging
+  const middleWares = [sagaMiddleware, routerMiddleware(history), logger];
 
   const enhancers = [applyMiddleware(...middleWares)];
   const composeEnhancers =

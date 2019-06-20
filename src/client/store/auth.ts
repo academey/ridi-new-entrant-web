@@ -1,4 +1,6 @@
 import { IStoreAction } from 'client/store/index';
+import { clearStorage } from 'client/utils/storage';
+import { User } from 'database/models/user';
 import { Record } from 'immutable';
 
 // types
@@ -9,7 +11,13 @@ export const LOGIN_FAILED = `${resource}/LOGIN_FAILED`;
 
 export const REGISTER_START = `${resource}/REGISTER_START`;
 export const REGISTER_SUCCEEDED = `${resource}/REGISTER_SUCCEEDED`;
-export const REGISTER_FAILED = `${resource}/LOGIN_FAILED`;
+export const REGISTER_FAILED = `${resource}/REGISTER_FAILED`;
+
+export const LOGIN_CHECK_START = `${resource}/LOGIN_CHECK_START`;
+export const LOGIN_CHECK_SUCCEEDED = `${resource}/LOGIN_CHECK_SUCCEEDED`;
+export const LOGIN_CHECK_FAILED = `${resource}/LOGIN_CHECK_FAILED`;
+
+export const LOGOUT = `${resource}/LOGOUT`;
 
 const AuthStateRecord = Record({
   loginLoading: false,
@@ -18,7 +26,7 @@ const AuthStateRecord = Record({
   registerLoading: false,
   registerError: false,
   registerErrorMessage: '',
-  isLogin: false,
+  user: null,
 });
 
 export class AuthState extends AuthStateRecord {
@@ -28,7 +36,7 @@ export class AuthState extends AuthStateRecord {
   public registerLoading: boolean;
   public registerError: boolean;
   public registerErrorMessage: string;
-  public isLogin: boolean;
+  public user: User;
 }
 const initialState = new AuthState();
 
@@ -83,6 +91,38 @@ function registerFailed(error: Error) {
   };
 }
 
+function loginCheckStart(accessToken: string) {
+  return {
+    type: LOGIN_CHECK_START,
+    data: {
+      accessToken,
+    },
+  };
+}
+
+function loginCheckSucceeded(data: any, message: string) {
+  return {
+    type: LOGIN_CHECK_SUCCEEDED,
+    data,
+    message,
+  };
+}
+
+function loginCheckFailed(error: Error) {
+  return {
+    type: LOGIN_CHECK_FAILED,
+    error,
+  };
+}
+
+function logout() {
+  clearStorage();
+
+  return {
+    type: LOGOUT,
+  };
+}
+
 export const actionCreators = {
   loginStart,
   loginSucceeded,
@@ -90,6 +130,10 @@ export const actionCreators = {
   registerStart,
   registerSucceeded,
   registerFailed,
+  loginCheckStart,
+  loginCheckSucceeded,
+  loginCheckFailed,
+  logout,
 };
 
 // reducers
@@ -104,7 +148,11 @@ export function authReducer(
       });
     case LOGIN_SUCCEEDED:
       return currentState.withMutations((state) => {
-        state.set('loginLoading', false).set('loginError', false);
+        console.log(action);
+        state
+          .set('loginLoading', false)
+          .set('loginError', false)
+          .set('user', action.data.user);
       });
     case LOGIN_FAILED:
       return currentState.withMutations((state) => {
@@ -116,11 +164,33 @@ export function authReducer(
       });
     case REGISTER_SUCCEEDED:
       return currentState.withMutations((state) => {
-        state.set('registerLoading', false).set('registerError', false);
+        state
+          .set('registerLoading', false)
+          .set('registerError', false)
+          .set('user', action.data.user);
       });
     case REGISTER_FAILED:
       return currentState.withMutations((state) => {
         state.set('registerLoading', false).set('registerError', true);
+      });
+    case LOGOUT:
+      return currentState.withMutations((state) => {
+        state.set('user', undefined);
+      });
+    case LOGIN_CHECK_START:
+      return currentState.withMutations((state) => {
+        state.set('loginLoading', true).set('loginError', false);
+      });
+    case LOGIN_CHECK_SUCCEEDED:
+      return currentState.withMutations((state) => {
+        state
+          .set('loginLoading', false)
+          .set('loginError', false)
+          .set('user', action.data.user);
+      });
+    case LOGIN_CHECK_FAILED:
+      return currentState.withMutations((state) => {
+        state.set('loginLoading', false).set('loginError', true);
       });
     default:
       return currentState;

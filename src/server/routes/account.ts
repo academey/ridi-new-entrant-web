@@ -1,26 +1,25 @@
-import {NextFunction, Request, Response, Router} from 'express';
+import { NextFunction, Request, Response, Router } from 'express';
 
-import {isAuthenticated} from '../passport';
+import { isAuthenticated } from '../passport';
 
 export class AccountRouter {
-    constructor() {
-        this.router = Router();
-        this.init();
-    }
-    public router: Router;
+  constructor() {
+    this.router = Router();
+    this.init();
+  }
+  public router: Router;
 
-    public profile(req: any, res: Response, next: NextFunction) {
-        console.log(req.user);
-        res.json({
-            profile: 'profile',
-        });
-    }
+  public profile(req: any, res: Response, next: NextFunction) {
+    console.log(req.user);
+    res.json({
+      profile: 'profile',
+    });
+  }
 
-    public init() {
-        this.router.use('', isAuthenticated);
-        this.router.get('/profile', this.profile);
-
-    }
+  public init() {
+    this.router.use('', isAuthenticated);
+    this.router.get('/profile', this.profile);
+  }
 }
 
 const accountRoutes = new AccountRouter();

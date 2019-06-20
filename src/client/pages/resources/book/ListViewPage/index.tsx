@@ -55,7 +55,7 @@ class BookPage extends Component<IBookPageProps, IBookPageState> {
       </Card>
     ));
     return <Wrapper>{bookCards}</Wrapper>;
-  }
+  };
 
   public render() {
     return (
