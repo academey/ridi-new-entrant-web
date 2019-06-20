@@ -91,12 +91,9 @@ function registerFailed(error: Error) {
   };
 }
 
-function loginCheckStart(accessToken: string) {
+function loginCheckStart() {
   return {
     type: LOGIN_CHECK_START,
-    data: {
-      accessToken,
-    },
   };
 }
 

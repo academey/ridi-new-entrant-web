@@ -1,4 +1,5 @@
 import requestApi from 'client/api/request';
+import { getAccessToken } from 'client/utils/storage';
 import { IApiResponse } from 'server/utils/result';
 
 export async function requestBooks(): Promise<IApiResponse> {
@@ -9,6 +10,36 @@ export async function requestBooks(): Promise<IApiResponse> {
 
 export async function requestBook(id: string): Promise<IApiResponse> {
   const data: IApiResponse = await requestApi(`book/${id}`);
+
+  return data;
+}
+
+export async function borrowBook(id: string): Promise<IApiResponse> {
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error('로그인하세요~');
+  }
+  const data: IApiResponse = await requestApi(`book/${id}/borrow`, {
+    method: 'POST',
+    auth: {
+      bearer: accessToken,
+    },
+  });
+
+  return data;
+}
+
+export async function returnBook(id: string): Promise<IApiResponse> {
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error('로그인하세요~');
+  }
+  const data: IApiResponse = await requestApi(`book/${id}/return`, {
+    method: 'POST',
+    auth: {
+      bearer: accessToken,
+    },
+  });
 
   return data;
 }
@@ -33,15 +64,13 @@ export async function login({
   return data;
 }
 
-interface ILoginCheckParam {
-  accessToken: string;
-}
+export async function loginCheck(): Promise<IApiResponse> {
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error('토큰 없음~');
+  }
 
-export async function loginCheck({
-  accessToken,
-}: ILoginCheckParam): Promise<IApiResponse> {
   const data: IApiResponse = await requestApi('auth/login_check', {
-    method: 'GET',
     auth: {
       bearer: accessToken,
     },

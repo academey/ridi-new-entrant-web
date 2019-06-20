@@ -22,7 +22,10 @@ export class BookRouter {
   }
 
   public async getAll(req: Request, res: Response, next: NextFunction) {
-    const books = await Book.findAll({ include: [BookReservation] });
+    const books = await Book.findAll({
+      include: [BookReservation],
+      order: ['id', 'DESC'],
+    });
     res.status(200).send(makeSuccessResponse({ test: 3, books }, '다 가져옴'));
   }
 
@@ -37,11 +40,11 @@ export class BookRouter {
   }
 
   public async deleteOne(req: Request, res: Response, next: NextFunction) {
-    const query = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id, 10);
     try {
       const destroyedCount = await Book.destroy({
         where: {
-          id: query,
+          id,
         },
       });
       if (destroyedCount === 0) {
@@ -59,8 +62,9 @@ export class BookRouter {
   }
 
   public async borrow(req: any, res: Response, next: NextFunction) {
-    const { bookId, endAt } = req.body;
-    const userId = req.User.id;
+    const bookId = parseInt(req.params.id, 10);
+    const { endAt } = req.body;
+    const userId = req.user.id;
     const bookReservation = await BookReservation.findOne({
       where: {
         bookId,
@@ -90,8 +94,8 @@ export class BookRouter {
   }
 
   public async return(req: any, res: Response, next: NextFunction) {
-    const { bookId } = req.body;
-    const userId = req.User.id;
+    const bookId = parseInt(req.params.id, 10);
+    const userId = req.user.id;
     const bookReservation = await BookReservation.findOne({
       where: {
         bookId,
@@ -125,8 +129,8 @@ export class BookRouter {
     this.router.get('/:id', this.getOne);
     this.router.delete('/:id', this.deleteOne);
 
-    this.router.post('/borrow', isAuthenticated, this.borrow);
-    this.router.post('/return', isAuthenticated, this.return);
+    this.router.post('/:id/borrow', isAuthenticated, this.borrow);
+    this.router.post('/:id/return', isAuthenticated, this.return);
   }
 }
 

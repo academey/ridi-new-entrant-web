@@ -4,28 +4,19 @@ import Header from 'client/containers/Header';
 import { ErrorBoundary } from 'client/pages';
 import Routing from 'client/pages/Routing';
 import { actionCreators } from 'client/store/auth';
-import { getAccessToken } from 'client/utils/storage';
 import Notifications from 'react-notify-toast';
 import { connect } from 'react-redux';
 import { compose, Dispatch } from 'redux';
 
 interface IRootProps {
-  loginCheckStart: (accessToken: string) => void;
+  loginCheckStart: () => void;
 }
 
 class Root extends React.PureComponent<IRootProps> {
   constructor(props: IRootProps) {
     super(props);
-    this.checkAuth();
+    this.props.loginCheckStart();
   }
-
-  public checkAuth = () => {
-    const accessToken = getAccessToken();
-
-    if (accessToken) {
-      this.props.loginCheckStart(accessToken);
-    }
-  };
 
   public render() {
     return (
@@ -41,8 +32,7 @@ class Root extends React.PureComponent<IRootProps> {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  loginCheckStart: (accessToken: string) =>
-    dispatch(actionCreators.loginCheckStart(accessToken)),
+  loginCheckStart: () => dispatch(actionCreators.loginCheckStart()),
 });
 
 const withConnect = connect(

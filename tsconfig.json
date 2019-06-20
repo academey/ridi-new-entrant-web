@@ -17,12 +17,8 @@
     "baseUrl": ".",
     "paths": {
       "*": [
-        "src/**/*"
-      ],
-      "alias": {
-        "test": "./test",
-        "underscore": "lodash"
-      }
+        "src/*"
+      ]
     }
   },
   "include": [

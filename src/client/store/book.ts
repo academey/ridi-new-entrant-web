@@ -21,6 +21,12 @@ const BookStateRecord = Record({
   getListDataLoading: false,
   getListDataError: false,
   getListDataErrorMessage: '',
+  borrowLoading: false,
+  borrowError: false,
+  borrowErrorMessage: '',
+  returnLoading: false,
+  returnError: false,
+  returnErrorMessage: '',
   data: fromJS({}),
   listData: fromJS([]),
 });
@@ -29,6 +35,12 @@ export class BookState extends BookStateRecord {
   public getListDataLoading: boolean;
   public getListDataError: boolean;
   public getListDataErrorMessage: string;
+  public borrowLoading: boolean;
+  public borrowError: boolean;
+  public borrowErrorMessage: string;
+  public returnLoading: boolean;
+  public returnError: boolean;
+  public returnErrorMessage: string;
   public data: Book;
   public listData: Book[];
 }
@@ -57,10 +69,64 @@ function getListDataFailed(error: Error) {
   };
 }
 
+function borrowStart(bookId: number) {
+  return {
+    type: BOOK_BORROW_START,
+    data: {
+      bookId,
+    },
+  };
+}
+
+function borrowSucceeded(data: any, message: string) {
+  return {
+    type: BOOK_BORROW_SUCCEEDED,
+    data,
+    message,
+  };
+}
+
+function borrowFailed(error: Error) {
+  return {
+    type: BOOK_BORROW_FAILED,
+    error,
+  };
+}
+
+function returnStart(bookId: number) {
+  return {
+    type: BOOK_RETURN_START,
+    data: {
+      bookId,
+    },
+  };
+}
+
+function returnSucceeded(data: any, message: string) {
+  return {
+    type: BOOK_RETURN_SUCCEEDED,
+    data,
+    message,
+  };
+}
+
+function returnFailed(error: Error) {
+  return {
+    type: BOOK_RETURN_FAILED,
+    error,
+  };
+}
+
 export const actionCreators = {
   getListDataStart,
   getListDataSucceeded,
   getListDataFailed,
+  borrowStart,
+  borrowSucceeded,
+  borrowFailed,
+  returnStart,
+  returnSucceeded,
+  returnFailed,
 };
 
 // reducers
@@ -83,6 +149,30 @@ export function bookReducer(
     case BOOK_GET_LIST_DATA_FAILED:
       return currentState.withMutations((state) => {
         state.set('getListDataLoading', false).set('getListDataError', true);
+      });
+    case BOOK_BORROW_START:
+      return currentState.withMutations((state) => {
+        state.set('borrowLoading', true).set('borrowError', false);
+      });
+    case BOOK_BORROW_SUCCEEDED:
+      return currentState.withMutations((state) => {
+        state.set('borrowLoading', false).set('borrowError', false);
+      });
+    case BOOK_BORROW_FAILED:
+      return currentState.withMutations((state) => {
+        state.set('borrowLoading', false).set('borrowError', true);
+      });
+    case BOOK_RETURN_START:
+      return currentState.withMutations((state) => {
+        state.set('returnLoading', true).set('returnError', false);
+      });
+    case BOOK_RETURN_SUCCEEDED:
+      return currentState.withMutations((state) => {
+        state.set('returnLoading', false).set('returnError', false);
+      });
+    case BOOK_RETURN_FAILED:
+      return currentState.withMutations((state) => {
+        state.set('returnLoading', false).set('returnError', true);
       });
     default:
       return currentState;
