@@ -1,10 +1,12 @@
 import * as bodyParser from 'body-parser';
 import cors from 'cors';
-import express from 'express';
+import express, { NextFunction } from 'express';
 import logger from 'morgan';
+import { ValidationError } from 'property-validator';
 
 import './passport';
 
+import { makeFailResponse } from 'server/utils/result';
 import models from '../database/models';
 import route from './routes';
 
@@ -13,6 +15,7 @@ class App {
     this.express = express();
     this.middleware();
     this.routes();
+    this.errorHandling();
     this.syncDB();
   }
 
@@ -37,6 +40,20 @@ class App {
     this.express.use('/', router);
 
     route(this.express);
+  }
+
+  private errorHandling(): void {
+    this.express.use((err: Error, req: any, res: any, next: NextFunction) => {
+      if (!err) {
+        return next(err);
+      }
+
+      if (err instanceof ValidationError) {
+        return res.status(422).json(makeFailResponse(err.message));
+      } else {
+        return res.status(500).json(makeFailResponse(err.message));
+      }
+    });
   }
 
   public syncDB() {

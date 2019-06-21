@@ -1,4 +1,5 @@
 import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
 import passport from 'passport';
 import {
   ExtractJwt as ExtractJWT,
@@ -6,6 +7,8 @@ import {
 } from 'passport-jwt';
 import { Strategy as LocalStrategy } from 'passport-local';
 
+import { NextFunction, Request, Response } from 'express';
+import { makeFailResponse } from 'server/utils/result';
 import { User } from '../database/models/User';
 
 const BCRYPT_SALT_ROUNDS = 12;
@@ -24,11 +27,11 @@ passport.use(
       }
 
       if (!user) {
-        return cb(null, false, { message: 'Incorrect username.' });
+        return cb(null, false, { message: '해당 유저를 찾을 수 없습니다.' });
       }
       const response = await bcrypt.compare(password, user.password);
       if (!response) {
-        return cb(null, false, { message: 'Incorrect password.' });
+        return cb(null, false, { message: '비밀번호가 틀렸습니다.' });
       }
 
       return cb(null, user);
@@ -97,4 +100,19 @@ passport.use(
 //     cb(null, user);
 // });
 
-export const isAuthenticated = passport.authenticate('jwt', { session: false });
+export async function isAuthenticated(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const token = ExtractJWT.fromAuthHeaderAsBearerToken()(req);
+    await jwt.verify(token, process.env.JWT_SECRET);
+  } catch (err) {
+    return res
+      .status(401)
+      .json(makeFailResponse('토큰이 없거나 유효하지 않습니다.'));
+  }
+
+  return passport.authenticate('jwt', { session: false })(req, res, next);
+}

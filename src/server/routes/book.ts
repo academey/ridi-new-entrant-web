@@ -1,8 +1,10 @@
+import { Book } from 'database/models/Book';
+import { BookReservation } from 'database/models/BookReservation';
 import { NextFunction, Request, Response, Router } from 'express';
-import { Book } from '../../database/models/Book';
-import { BookReservation } from '../../database/models/BookReservation';
-import { isAuthenticated } from '../passport';
-import { makeFailResponse, makeSuccessResponse } from '../utils/result';
+import asyncHandler from 'express-async-handler';
+import { assertAll, isNumeric, presence } from 'property-validator';
+import { isAuthenticated } from 'server/passport';
+import { makeFailResponse, makeSuccessResponse } from 'server/utils/result';
 
 export class BookRouter {
   constructor() {
@@ -12,6 +14,8 @@ export class BookRouter {
   public router: Router;
 
   public async createOne(req: Request, res: Response, next: NextFunction) {
+    assertAll(req, [presence('name'), presence('desc')]);
+
     const { name, desc } = req.body;
     const book = await Book.create({
       name,
@@ -26,10 +30,12 @@ export class BookRouter {
       include: [BookReservation],
       order: ['id', 'DESC'],
     });
+
     res.status(200).send(makeSuccessResponse({ test: 3, books }, '다 가져옴'));
   }
 
   public async getOne(req: Request, res: Response, next: NextFunction) {
+    assertAll(req, [isNumeric('id')]);
     const query = parseInt(req.params.id, 10);
     const book = await Book.findByPk(query);
     if (book) {
@@ -40,6 +46,7 @@ export class BookRouter {
   }
 
   public async deleteOne(req: Request, res: Response, next: NextFunction) {
+    assertAll(req, [isNumeric('id')]);
     const id = parseInt(req.params.id, 10);
     try {
       const destroyedCount = await Book.destroy({
@@ -62,6 +69,7 @@ export class BookRouter {
   }
 
   public async borrow(req: any, res: Response, next: NextFunction) {
+    assertAll(req, [isNumeric('id')]);
     const bookId = parseInt(req.params.id, 10);
     const { endAt } = req.body;
     const userId = req.user.id;
@@ -94,6 +102,7 @@ export class BookRouter {
   }
 
   public async return(req: any, res: Response, next: NextFunction) {
+    assertAll(req, [isNumeric('id')]);
     const bookId = parseInt(req.params.id, 10);
     const userId = req.user.id;
     const bookReservation = await BookReservation.findOne({
@@ -124,13 +133,13 @@ export class BookRouter {
   }
 
   public init() {
-    this.router.post('/', this.createOne);
-    this.router.get('/', this.getAll);
-    this.router.get('/:id', this.getOne);
-    this.router.delete('/:id', this.deleteOne);
+    this.router.post('/', asyncHandler(this.createOne));
+    this.router.get('/', asyncHandler(this.getAll));
+    this.router.get('/:id', asyncHandler(this.getOne));
+    this.router.delete('/:id', asyncHandler(this.deleteOne));
 
-    this.router.post('/:id/borrow', isAuthenticated, this.borrow);
-    this.router.post('/:id/return', isAuthenticated, this.return);
+    this.router.post('/:id/borrow', isAuthenticated, asyncHandler(this.borrow));
+    this.router.post('/:id/return', isAuthenticated, asyncHandler(this.return));
   }
 }
 

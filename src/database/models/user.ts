@@ -29,4 +29,11 @@ export class User extends Model<User> {
 
   @HasOne(() => BookReservation, 'userId')
   public bookReservation?: BookReservation;
+
+  public toJSON(): User {
+    const json: User = super.toJSON() as User;
+
+    delete json.password;
+    return json;
+  }
 }
