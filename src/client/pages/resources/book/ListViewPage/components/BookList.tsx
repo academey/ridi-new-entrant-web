@@ -1,5 +1,5 @@
-import { Book } from 'database/models/book';
-import { User } from 'database/models/user';
+import { Book } from 'database/models/Book';
+import { User } from 'database/models/User';
 import React from 'react';
 import {
   Button,

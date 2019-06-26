@@ -1,4 +1,3 @@
-import { AuthState } from 'client/store/auth';
 import { IStoreAction } from 'client/store/index';
 import { Book } from 'database/models/Book';
 import { fromJS, Record } from 'immutable';

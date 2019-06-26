@@ -7,9 +7,9 @@ import {
 } from 'passport-jwt';
 import { Strategy as LocalStrategy } from 'passport-local';
 
+import { User } from 'database/models/User';
 import { NextFunction, Request, Response } from 'express';
 import { makeFailResponse } from 'server/utils/result';
-import { User } from '../database/models/User';
 
 const BCRYPT_SALT_ROUNDS = 12;
 

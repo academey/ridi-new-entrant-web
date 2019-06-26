@@ -3,23 +3,25 @@ import {
   BelongsToMany,
   Column,
   CreatedAt,
+  HasOne,
   Model,
   Table,
   UpdatedAt,
 } from 'sequelize-typescript';
 
+import { Author } from './Author';
 import { AuthorBook } from './AuthorBook';
-import { Book } from './Book';
+import { BookReservation } from './BookReservation';
 
 @Table
-export class Author extends Model<Author> {
+export class Book extends Model<Book> {
   @AllowNull(false)
   @Column
   public name!: string;
 
   @AllowNull(false)
   @Column
-  public desc!: number;
+  public desc!: string;
 
   @CreatedAt
   @Column
@@ -29,6 +31,9 @@ export class Author extends Model<Author> {
   @Column
   public updatedAt!: Date;
 
-  @BelongsToMany(() => Book, () => AuthorBook)
-  public books?: Book[];
+  @BelongsToMany(() => Author, () => AuthorBook)
+  public authors?: Author[];
+
+  @HasOne(() => BookReservation, 'bookId')
+  public bookReservation?: BookReservation;
 }

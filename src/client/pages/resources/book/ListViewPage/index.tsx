@@ -1,7 +1,7 @@
 import { IStoreState } from 'client/store';
 import { actionCreators } from 'client/store/book';
 import { Book } from 'database/models/Book';
-import { User } from 'database/models/user';
+import { User } from 'database/models/User';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';

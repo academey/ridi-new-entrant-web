@@ -14,19 +14,19 @@ module.exports = {
     */
     return queryInterface.bulkInsert("Author", [{
       name: "John Doe",
-      desc: "test",
+      desc: "hihi",
       createdAt: "2018-12-04",
       updatedAt: "2018-12-04",
     },
       {
         name: "John Doe",
-        desc: "test",
+        desc: "hihihihi",
         createdAt: "2018-12-04",
         updatedAt: "2018-12-04",
       }
       , {
         name: "John Doe",
-        desc: "test",
+        desc: "hihihihihihihi",
         createdAt: "2018-12-04",
         updatedAt: "2018-12-04",
       }], {});

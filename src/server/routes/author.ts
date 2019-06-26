@@ -1,6 +1,5 @@
+import { Author } from 'database/models/Author';
 import { NextFunction, Request, Response, Router } from 'express';
-
-import { Author } from '../../database/models/Author';
 
 export class AuthorRouter {
   constructor() {

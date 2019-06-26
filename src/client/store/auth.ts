@@ -1,6 +1,6 @@
 import { IStoreAction } from 'client/store/index';
 import { clearStorage } from 'client/utils/storage';
-import { User } from 'database/models/user';
+import { User } from 'database/models/User';
 import { Record } from 'immutable';
 
 // types

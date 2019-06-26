@@ -2,7 +2,7 @@ import { Request, Response, Router } from 'express';
 import * as jwt from 'jsonwebtoken';
 import passport from 'passport';
 
-import { User } from 'database/models/user';
+import { User } from 'database/models/User';
 import { assertAll, email, presence } from 'property-validator';
 import { isAuthenticated } from 'server/passport';
 import { makeFailResponse, makeSuccessResponse } from 'server/utils/result';

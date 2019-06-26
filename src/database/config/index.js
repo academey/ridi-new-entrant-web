@@ -1,18 +1,11 @@
-import { SequelizeOptions } from 'sequelize-typescript';
+require('dotenv').config();
 
-export interface SequelizeConfig {
-  [index: string]: SequelizeOptions;
-  development: SequelizeOptions;
-  test: SequelizeOptions;
-  production: SequelizeOptions;
-}
-
-const sequelizeConfigs: SequelizeConfig = {
+module.exports = {
   development: {
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
-    host: process.env.DB_HOST,
+    host: 'localhost', // 로컬로 접근할 수 있는 mariadb 가 켜져있어야 함.
     dialect: 'mariadb',
     dialectOptions: {
       timezone: 'Etc/GMT-9',
@@ -21,7 +14,6 @@ const sequelizeConfigs: SequelizeConfig = {
     define: {
       freezeTableName: true,
     },
-    modelPaths: ['./models/*.ts'],
   },
   test: {
     username: process.env.DB_USERNAME,
@@ -36,7 +28,6 @@ const sequelizeConfigs: SequelizeConfig = {
     define: {
       freezeTableName: true,
     },
-    modelPaths: ['src/database/models/*.ts'],
   },
   production: {
     username: process.env.DB_USERNAME,
@@ -51,8 +42,5 @@ const sequelizeConfigs: SequelizeConfig = {
     define: {
       freezeTableName: true,
     },
-    modelPaths: ['src/database/models/*.ts'],
   },
 };
-
-export default sequelizeConfigs;

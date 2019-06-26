@@ -1,6 +1,6 @@
 import { IStoreState } from 'client/store';
 import { actionCreators } from 'client/store/auth';
-import { User } from 'database/models/user';
+import { User } from 'database/models/User';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';

@@ -1,1 +1,4 @@
-language: node_js
+language: node_js # 언어는 node_js
+branches:
+  only:
+    - master

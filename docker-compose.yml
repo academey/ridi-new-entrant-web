@@ -1,0 +1,68 @@
+version: '3'
+services:
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ${DB_DATA_PATH}:/var/lib/mysql
+      - ./src/database/seeders/init.sql:/data/application/init.sql
+    ports:
+      - "3306:3306"
+  server:
+    container_name: server
+    build: . # Dockerfile이 위치한 경로
+    ports:
+      - "3000:3000" # 연결할 포트
+      - "8080:8080" # 연결할 포트
+    environment: # 환경변수 설정
+      - NODE_PATH=src
+#    volumes: 왜 안됨
+#      - ./:/app/
+    depends_on:
+      - db
+
+#version: '3'
+#
+#services:
+#  nginx:
+#    container_name: node-nginx-lb
+#    build: ./nginx
+#    links:
+#      - app-1:app-1
+#      - app-2:app-2
+#      - app-3:app-3
+#    ports:
+#      - 3000:80
+#    depends_on:
+#      - app-1
+#      - app-2
+#      - app-3
+#      - mariadb
+#
+#  app-1:
+#    container_name: node-nginx-1
+#    build: .
+#    ports:
+#      - 3000
+#  app-2:
+#    container_name: node-nginx-2
+#    build: .
+#    ports:
+#      - 3000
+#  app-3:
+#    container_name: node-nginx-3
+#    build: .
+#    ports:
+#      - 3000
+#  mariadb:
+#    image: mariadb
+#      restart: always
+#      environment:
+#        - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+#      volumes:
+#        - ${DB_DATA_PATH}:/var/lib/mysql
+#        - ./src/database/seeders/init.sql:/data/application/init.sql
+#      ports:
+#        - "3306:3306"
