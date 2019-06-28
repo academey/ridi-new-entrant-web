@@ -56,16 +56,17 @@ class App {
     });
   }
 
-  public syncDB() {
-    models.sequelize
-      .sync()
-      .then(() => {
-        console.log('동기화 성공');
-      })
-      .catch((err: any) => {
-        console.log('연결 실패');
-        console.log(err);
-      });
+  public async syncDB() {
+    try {
+      if (process.env.NODE_ENV === 'test') {
+        return;
+      }
+      await models.sequelize.sync();
+      console.log('동기화 성공');
+    } catch (error) {
+      console.log('연결 실패');
+      console.log(error);
+    }
   }
 }
 

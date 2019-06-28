@@ -9,8 +9,8 @@ import { call, fork, put, select, takeLatest } from 'redux-saga/effects';
 
 function* loginCheckStartGenerator() {
   try {
-    const { data, message } = yield call(loginCheck);
-    yield put(actionCreators.loginCheckSucceeded(data, message));
+    const { result, message } = yield call(loginCheck);
+    yield put(actionCreators.loginCheckSucceeded(result, message));
   } catch (error) {
     yield put(actionCreators.loginCheckFailed(error));
   }

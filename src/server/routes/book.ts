@@ -15,31 +15,31 @@ export class BookRouter {
 
   public async createOne(req: Request, res: Response, next: NextFunction) {
     assertAll(req, [presence('name'), presence('desc')]);
-
     const { name, desc } = req.body;
     const book = await Book.create({
       name,
       desc,
     });
 
-    res.status(201).send(makeSuccessResponse({ book }, '책 생성 완료.'));
+    res.status(201).send(makeSuccessResponse(book, '책 생성 완료.'));
   }
 
   public async getAll(req: Request, res: Response, next: NextFunction) {
-    const books = await Book.findAll({
+    const books: Book[] = await Book.findAll({
       include: [BookReservation],
       order: ['id', 'DESC'],
     });
 
-    res.status(200).send(makeSuccessResponse({ test: 3, books }, '다 가져옴'));
+    res.status(200).send(makeSuccessResponse(books, '다 가져옴'));
   }
 
   public async getOne(req: Request, res: Response, next: NextFunction) {
     assertAll(req, [isNumeric('id')]);
     const query = parseInt(req.params.id, 10);
     const book = await Book.findByPk(query);
+
     if (book) {
-      res.status(200).send(makeSuccessResponse({ book }, '하나 가져옴'));
+      res.status(200).send(makeSuccessResponse(book, '하나 가져옴'));
     } else {
       res.status(404).send(makeFailResponse('그런 아이디를 가진 책은 없음'));
     }
@@ -69,7 +69,7 @@ export class BookRouter {
   }
 
   public async borrow(req: any, res: Response, next: NextFunction) {
-    assertAll(req, [isNumeric('id')]);
+    assertAll(req, [isNumeric('id'), presence('endAt')]);
     const bookId = parseInt(req.params.id, 10);
     const { endAt } = req.body;
     const userId = req.user.id;
@@ -91,13 +91,12 @@ export class BookRouter {
       bookId,
       endAt,
     });
-
     if (createdBookReservation) {
       res
         .status(200)
-        .send(makeSuccessResponse({ createdBookReservation }, '빌리기 성공'));
+        .send(makeSuccessResponse(createdBookReservation, '빌리기 성공'));
     } else {
-      res.status(404).send(makeFailResponse('그런 아이디를 가진 책은 없음'));
+      res.status(500).send(makeFailResponse('서버 오류로 안 빌려졌음'));
     }
   }
 
@@ -116,17 +115,17 @@ export class BookRouter {
       return res.status(401).send(makeFailResponse('예약 한 사람이 아님'));
     }
 
-    const deletedBookReservation = await BookReservation.destroy({
+    const destroyedCount = await BookReservation.destroy({
       where: {
         userId,
         bookId,
       },
     });
 
-    if (deletedBookReservation) {
+    if (destroyedCount) {
       res
         .status(200)
-        .send(makeSuccessResponse({ deletedBookReservation }, '반납 성공'));
+        .send(makeSuccessResponse({ destroyedCount }, '반납 성공'));
     } else {
       res.status(404).send(makeFailResponse('반납에 실패함'));
     }

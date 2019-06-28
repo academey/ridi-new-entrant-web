@@ -3,13 +3,12 @@ import { getAccessToken } from 'client/utils/storage';
 import { IApiResponse } from 'server/utils/result';
 
 export async function requestBooks(): Promise<IApiResponse> {
-  const data: IApiResponse = await requestApi('book');
-
+  const data: IApiResponse = await requestApi('books');
   return data;
 }
 
 export async function requestBook(id: string): Promise<IApiResponse> {
-  const data: IApiResponse = await requestApi(`book/${id}`);
+  const data: IApiResponse = await requestApi(`books/${id}`);
 
   return data;
 }
@@ -19,7 +18,7 @@ export async function borrowBook(id: string): Promise<IApiResponse> {
   if (!accessToken) {
     throw new Error('로그인하세요~');
   }
-  const data: IApiResponse = await requestApi(`book/${id}/borrow`, {
+  const data: IApiResponse = await requestApi(`books/${id}/borrow`, {
     method: 'POST',
     auth: {
       bearer: accessToken,
@@ -34,7 +33,7 @@ export async function returnBook(id: string): Promise<IApiResponse> {
   if (!accessToken) {
     throw new Error('로그인하세요~');
   }
-  const data: IApiResponse = await requestApi(`book/${id}/return`, {
+  const data: IApiResponse = await requestApi(`books/${id}/return`, {
     method: 'POST',
     auth: {
       bearer: accessToken,

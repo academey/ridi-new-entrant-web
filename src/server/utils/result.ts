@@ -5,23 +5,23 @@ export enum RESPONSE_STATUS {
 
 export function makeResponse(
   status: RESPONSE_STATUS,
-  data: object,
+  result: object,
   message: string,
 ): IApiResponse {
   return {
     status,
-    data,
+    result,
     message,
   };
 }
 
 export function makeSuccessResponse(
-  data: object,
+  result: object,
   message: string,
 ): IApiResponse {
   return {
     status: RESPONSE_STATUS.SUCCESS,
-    data,
+    result,
     message,
   };
 }
@@ -35,8 +35,6 @@ export function makeFailResponse(message: string): IApiResponse {
 
 export interface IApiResponse {
   status: RESPONSE_STATUS;
-  data?: {
-    [key: string]: any;
-  };
+  result?: object | object[];
   message: string;
 }

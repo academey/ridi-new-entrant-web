@@ -10,14 +10,14 @@ import {
   BOOK_RETURN_START,
   BOOK_RETURN_SUCCEEDED,
 } from 'client/store/book';
-import { call, fork, put, takeEvery } from 'redux-saga/effects';
 import { notify } from 'react-notify-toast';
+import { call, fork, put, takeEvery } from 'redux-saga/effects';
 
 function* bookGetListDataStartGenerator() {
   try {
-    const { data, message } = yield call(requestBooks);
+    const { result, message } = yield call(requestBooks);
 
-    yield put(actionCreators.getListDataSucceeded(data, message));
+    yield put(actionCreators.getListDataSucceeded(result, message));
   } catch (error) {
     yield put(actionCreators.getListDataFailed(error));
   }
@@ -33,9 +33,9 @@ function* bookGetListDataStartWatcher() {
 function* bookBorrowStartGenerator(action: IStoreAction) {
   try {
     const { bookId } = action.data;
-    const { data, message } = yield call(borrowBook, bookId);
+    const { result, message } = yield call(borrowBook, bookId);
 
-    yield put(actionCreators.borrowSucceeded(data, message));
+    yield put(actionCreators.borrowSucceeded(result, message));
   } catch (error) {
     yield put(actionCreators.borrowFailed(error));
   }
@@ -48,9 +48,9 @@ function* bookBorrowStartWatcher() {
 function* bookReturnStartGenerator(action: IStoreAction) {
   try {
     const { bookId } = action.data;
-    const { data, message } = yield call(returnBook, bookId);
+    const { result, message } = yield call(returnBook, bookId);
 
-    yield put(actionCreators.returnSucceeded(data, message));
+    yield put(actionCreators.returnSucceeded(result, message));
   } catch (error) {
     yield put(actionCreators.returnFailed(error));
   }

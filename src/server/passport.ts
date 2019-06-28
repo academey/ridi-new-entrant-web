@@ -105,6 +105,15 @@ export async function isAuthenticated(
   res: Response,
   next: NextFunction,
 ) {
+  if (process.env.NODE_ENV === 'test') {
+    const user = {
+      id: 2,
+      nickname: 'Outsider',
+    };
+    req.user = user;
+    return next(null);
+  }
+
   try {
     const token = ExtractJWT.fromAuthHeaderAsBearerToken()(req);
     await jwt.verify(token, process.env.JWT_SECRET);
@@ -115,4 +124,16 @@ export async function isAuthenticated(
   }
 
   return passport.authenticate('jwt', { session: false })(req, res, next);
+}
+
+export function mockLogin(req: Request, res: Response, next: NextFunction) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  const user = {
+    nickname: 'Outsider',
+  };
+  req.login(user, (err) => {
+    next(err);
+  });
 }

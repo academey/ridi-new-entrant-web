@@ -143,7 +143,7 @@ export function bookReducer(
         state
           .set('getListDataLoading', false)
           .set('getListDataError', false)
-          .set('listData', action.data.books);
+          .set('listData', action.data);
       });
     case BOOK_GET_LIST_DATA_FAILED:
       return currentState.withMutations((state) => {
