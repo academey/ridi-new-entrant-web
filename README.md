@@ -1,5 +1,5 @@
 ### This repo is Working in Progress
-
+[![Build Status](https://travis-ci.org/academey/ridi-new-entrant-web.svg?branch=master)](https://travis-ci.org/academey/ridi-new-entrant-web)
 # Ridi Mini Library (Web Part)
 
 상세 기획안 : https://ridicorp.atlassian.net/wiki/spaces/DevSpace/pages/808716446
