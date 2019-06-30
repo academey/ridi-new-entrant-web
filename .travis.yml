@@ -14,7 +14,6 @@ deploy: # 배포
     region: ap-northeast-2
     skip_cleanup: true
     local_dir: deploy # deploy 디렉터리에 있는 파일을 s3로 업로드 하겠다는 의미
-    acl: public_read
     wait-until-deployed: true
     on:
       repo: academey/ridi-new-entrant-web #Github 주소
