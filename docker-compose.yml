@@ -1,6 +1,6 @@
 version: '3'
 services:
-  db:
+  composed-maria-db:
     image: mariadb
     restart: always
     environment:
@@ -21,7 +21,7 @@ services:
 #    volumes: 왜 안됨
 #      - ./:/app/
     depends_on:
-      - db
+      - composed-maria-db
 
 #version: '3'
 #

@@ -1,6 +1,5 @@
 .idea
-dist/
-dist
+build
 # Logs
 logs
 *.log
