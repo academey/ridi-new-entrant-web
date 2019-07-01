@@ -13,6 +13,7 @@ import route from './routes';
 class App {
   constructor() {
     this.express = express();
+    this.hostBundle();
     this.middleware();
     this.routes();
     this.errorHandling();
@@ -21,6 +22,13 @@ class App {
 
   public express: express.Application;
 
+  private hostBundle(): void {
+    if (process.env.NODE_ENV === 'production') {
+      console.log(__dirname);
+      this.express.use('/', express.static('build'));
+      this.express.use('/public', express.static('public'));
+    }
+  }
   private middleware(): void {
     this.express.use(logger('dev'));
     this.express.use(express.json());
@@ -29,16 +37,6 @@ class App {
   }
 
   private routes(): void {
-    const router = express.Router();
-
-    router.get('/', (req, res, next) => {
-      res.json({
-        message: 'Hello World!',
-      });
-    });
-
-    this.express.use('/', router);
-
     route(this.express);
   }
 

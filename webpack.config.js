@@ -6,7 +6,6 @@ module.exports = {
   entry: "./src/client/index.tsx",
   output: {
     path: path.resolve(__dirname, 'build'),
-    publicPath: "http://localhost:3000/",
     filename: "bundle.js"
   },
   module: {
