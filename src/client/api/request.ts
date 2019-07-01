@@ -1,10 +1,10 @@
 import request from 'request-promise';
 import { IApiResponse, RESPONSE_STATUS } from 'server/utils/result';
 
-const URL = 'http://0.0.0.0:8080';
+const URL = `${window.location.hostname}:8080`;
 
 function getRequestURL(url: string) {
-  return `${URL}/api/${url}`;
+  return `http://${URL}/api/${url}`;
 }
 
 export default async function requestApi(
