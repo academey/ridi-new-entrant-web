@@ -2,7 +2,6 @@ version: '3'
 services:
   composed-maria-db:
     image: mariadb
-    restart: always
     environment:
       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
     volumes:
