@@ -1,6 +1,7 @@
 version: '3'
 services:
   composed-maria-db:
+    container_name: composed-maria-db
     image: mariadb
     environment:
       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
