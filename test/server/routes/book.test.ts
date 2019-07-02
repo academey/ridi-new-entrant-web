@@ -142,6 +142,11 @@ describe('Test /api/books', () => {
 
   test('api book borrow', async () => {
     const passportMock = sinon.mock(passport);
+    const bookMock = sinon.mock(Book);
+    bookMock
+      .expects('findByPk')
+      .withArgs(mockBookId)
+      .resolves(mockBook);
     const bookReservationMock = sinon.mock(BookReservation);
     bookReservationMock
       .expects('findOne')
@@ -176,7 +181,26 @@ describe('Test /api/books', () => {
     bookReservationMock.verify();
   });
 
-  test('api book borrow Not found', async () => {
+  test('api book borrow Book not exists', async () => {
+    const bookMock = sinon.mock(Book);
+    bookMock
+      .expects('findByPk')
+      .withArgs(mockBookId)
+      .resolves(null);
+
+    await request(App)
+      .post(`/api/books/${mockBookId}/borrow`)
+      .send(mockBookReservationParam)
+      .expect(404);
+  });
+
+  test('api book borrow Book Reservation exists', async () => {
+    const bookMock = sinon.mock(Book);
+    bookMock
+      .expects('findByPk')
+      .withArgs(mockBookId)
+      .resolves(mockBook);
+
     const bookReservationMock = sinon.mock(BookReservation);
     bookReservationMock
       .expects('findOne')
@@ -190,12 +214,21 @@ describe('Test /api/books', () => {
     await request(App)
       .post(`/api/books/${mockBookId}/borrow`)
       .send(mockBookReservationParam)
-      .expect(404);
+      .expect(409);
   });
 
   test('api book borrow Param Validation fail', async () => {
     await request(App)
       .post(`/api/books/${mockBookId}/borrow`)
+      .expect(422);
+  });
+
+  test('api book borrow Param Validation isDate fail', async () => {
+    await request(App)
+      .post(`/api/books/${mockBookId}/borrow`)
+      .send({
+        endAt: '201922992-06-01',
+      })
       .expect(422);
   });
 

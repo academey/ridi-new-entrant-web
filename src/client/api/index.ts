@@ -24,6 +24,7 @@ export async function borrowBook(id: string): Promise<IApiResponse> {
       bearer: accessToken,
     },
     body: {
+      // TODO: 현재 반납 시각을 입력받는 인풋이 없어서 하드코딩 해 둠. 추후 인풋이 생기면 받고, 검증한 뒤 요청 날릴 예정
       endAt: '2019-06-01',
     },
   });

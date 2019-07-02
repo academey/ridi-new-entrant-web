@@ -2,7 +2,7 @@ import { Book } from 'database/models/Book';
 import { BookReservation } from 'database/models/BookReservation';
 import { NextFunction, Request, Response, Router } from 'express';
 import asyncHandler from 'express-async-handler';
-import { assertAll, isNumeric, presence } from 'property-validator';
+import { assertAll, isDate, isNumeric, presence } from 'property-validator';
 import { isAuthenticated } from 'server/passport';
 import { makeFailResponse, makeSuccessResponse } from 'server/utils/result';
 
@@ -35,8 +35,8 @@ export class BookRouter {
 
   public async getOne(req: Request, res: Response, next: NextFunction) {
     assertAll(req, [isNumeric('id')]);
-    const query = parseInt(req.params.id, 10);
-    const book = await Book.findByPk(query);
+    const bookId = parseInt(req.params.id, 10);
+    const book = await Book.findByPk(bookId);
 
     if (book) {
       res.status(200).send(makeSuccessResponse(book, '하나 가져옴'));
@@ -69,20 +69,28 @@ export class BookRouter {
   }
 
   public async borrow(req: any, res: Response, next: NextFunction) {
-    assertAll(req, [isNumeric('id'), presence('endAt')]);
+    assertAll(req, [isNumeric('id'), isDate('endAt')]);
     const bookId = parseInt(req.params.id, 10);
     const { endAt } = req.body;
     const userId = req.user.id;
+    const book = await Book.findByPk(bookId);
+    if (!book) {
+      return res.status(404).send(makeFailResponse('빌리려는 책이 없습니다.'));
+    }
+
     const bookReservation = await BookReservation.findOne({
       where: {
         bookId,
       },
     });
+
     if (bookReservation) {
       return res
-        .status(404)
+        .status(409)
         .send(
-          makeFailResponse(`Already reserved by ${bookReservation.userId}`),
+          makeFailResponse(
+            `이미 ${bookReservation.userId}에 의해 빌려졌습니다.`,
+          ),
         );
     }
 

@@ -4,12 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "precommit": "lint-staged",
-    "start": "npm run lint && tsc && node dist",
     "lint": "tslint -p .",
-    "nodemon": "npm run lint && nodemon --watch src --delay 1 --exec 'ts-node' src/index.js",
-    "build": "webpack --config webpack.config.prod.js -p",
     "test": "NODE_ENV=test jest",
+    "build": "webpack --config webpack.config.prod.js -p",
     "client": "cross-env NODE_PATH=src webpack-dev-server --mode development --devtool inline-source-map --hot",
     "server": "nodemon --exec NODE_PATH=src ts-node src/server/index.ts",
     "server-prod": "NODE_PATH=src NODE_ENV=production ts-node -T src/server/index.ts",
