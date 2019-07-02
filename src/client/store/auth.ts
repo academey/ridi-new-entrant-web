@@ -145,7 +145,6 @@ export function authReducer(
       });
     case LOGIN_SUCCEEDED:
       return currentState.withMutations((state) => {
-        console.log(action);
         state
           .set('loginLoading', false)
           .set('loginError', false)

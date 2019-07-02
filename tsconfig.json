@@ -12,7 +12,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "strictFunctionTypes": false,
-    "outDir": "dist",
+    "outDir": "build",
     "jsx": "react",
     "baseUrl": ".",
     "paths": {

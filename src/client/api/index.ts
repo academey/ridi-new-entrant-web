@@ -23,6 +23,9 @@ export async function borrowBook(id: string): Promise<IApiResponse> {
     auth: {
       bearer: accessToken,
     },
+    body: {
+      endAt: '2019-06-01',
+    },
   });
 
   return data;

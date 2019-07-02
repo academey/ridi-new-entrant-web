@@ -10,7 +10,6 @@ export class AccountRouter {
   public router: Router;
 
   public profile(req: any, res: Response, next: NextFunction) {
-    console.log(req.user);
     res.json({
       profile: 'profile',
     });

@@ -30,18 +30,7 @@ class LoginPage extends React.Component<
   };
 
   public render() {
-    const {
-      loginLoading,
-      loginError,
-      loginErrorMessage,
-      pristine,
-      submitting,
-      reset,
-      handleSubmit,
-      message,
-    } = this.props;
-
-    console.log(loginLoading, loginError, loginErrorMessage);
+    const { pristine, submitting, reset, handleSubmit, message } = this.props;
 
     return (
       <div>
@@ -85,7 +74,6 @@ class LoginPage extends React.Component<
 }
 
 const mapStateToProps = ({ auth }: IStoreState) => {
-  console.log(auth.toJS());
   return {
     loginLoading: auth.get('loginLoading'),
     loginError: auth.get('loginError'),

@@ -40,8 +40,6 @@ class RegisterPage extends React.Component<
       message,
     } = this.props;
 
-    console.log(registerLoading, registerError, registerErrorMessage);
-
     return (
       <div>
         RegisterPage~~~~

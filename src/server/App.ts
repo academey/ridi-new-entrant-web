@@ -24,7 +24,6 @@ class App {
 
   private hostBundle(): void {
     if (process.env.NODE_ENV === 'production') {
-      console.log(__dirname);
       this.express.use('/', express.static('build'));
       this.express.use('/public', express.static('public'));
     }

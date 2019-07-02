@@ -12,9 +12,11 @@ import createReducer from './store';
 export const history = createBrowserHistory();
 export default function configureStore(initialState = {}): Store<IStoreState> {
   const sagaMiddleware = createSagaMiddleware();
+  const middleWares = [sagaMiddleware, routerMiddleware(history)];
 
-  // TODO : development 만 logging
-  const middleWares = [sagaMiddleware, routerMiddleware(history), logger];
+  if (process.env.NODE_ENV !== 'production') {
+    middleWares.push(logger);
+  }
 
   const enhancers = [applyMiddleware(...middleWares)];
   const composeEnhancers =

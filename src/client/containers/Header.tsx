@@ -57,7 +57,9 @@ class Header extends React.Component<IHeaderProps, any> {
     return (
       <div>
         <Navbar color="light" light={true} expand="md">
-          <NavbarBrand href="/">Ridi Mini Library</NavbarBrand>
+          <NavbarBrand tag={Link} to="/">
+            Ridi Mini Library
+          </NavbarBrand>
           <NavbarToggler />
           <Collapse navbar={true}>{this.getAuthNavLink()}</Collapse>
         </Navbar>

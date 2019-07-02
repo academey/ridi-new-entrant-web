@@ -15,8 +15,8 @@ function* loginStartGenerator(action: IStoreAction) {
   const { email, password } = action.data;
 
   try {
-    const { data, message } = yield call(login, { email, password });
-    yield put(actionCreators.loginSucceeded(data, message));
+    const { result, message } = yield call(login, { email, password });
+    yield put(actionCreators.loginSucceeded(result, message));
   } catch (error) {
     yield put(actionCreators.loginFailed(error));
   }

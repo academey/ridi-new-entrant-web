@@ -14,9 +14,9 @@ import { call, fork, put, select, takeLatest } from 'redux-saga/effects';
 function* registerStartGenerator(action: IStoreAction) {
   const { email, password } = action.data;
   try {
-    const { data, message } = yield call(register, { email, password });
+    const { result, message } = yield call(register, { email, password });
 
-    yield put(actionCreators.registerSucceeded(data, message));
+    yield put(actionCreators.registerSucceeded(result, message));
   } catch (error) {
     yield put(actionCreators.registerFailed(error));
   }
