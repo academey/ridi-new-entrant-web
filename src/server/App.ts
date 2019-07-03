@@ -62,7 +62,7 @@ class App {
 
   public async syncDB() {
     try {
-      if (isTest() || isDevelopment()) {
+      if (isTest() || isProduction()) {
         return;
       }
       await models.sequelize.sync();
