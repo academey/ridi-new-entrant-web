@@ -13,6 +13,11 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "prod": "npm run build && npm run server-prod"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged && npm test"
+    }
+  },
   "lint-staged": {
     "**.*.{ts,tsx}": [
       "prettier --write",

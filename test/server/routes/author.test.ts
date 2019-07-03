@@ -29,7 +29,7 @@ describe('Test /api/authors', () => {
     const response = await request(App)
       .post('/api/authors')
       .send(mockAuthorParam)
-      .expect(200);
+      .expect(201);
     expect(response.body.result).toEqual(mockAuthor);
 
     authorMock.verify();
