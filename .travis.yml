@@ -19,13 +19,13 @@ deploy: # 배포
       repo: academey/ridi-new-entrant-web #Github 주소
       branch: master
   - provider: codedeploy
-      revision_type: github
-      access_key_id: $AWS_ACCESS_KEY # Travis repo settings에 설정된 값
-      secret_access_key: $AWS_SECRET_KEY # Travis repo settings에 설정된 값
-      application: hj-entrant-codedeploy-app # AWS 배포 애플리케이션
-      deployment_group: hj-entrant-codedeploy-group # AWS 배포 애플리케이션에 만들어져 있는 배포 그룹
-      region: ap-northeast-2
-      wait-until-deployed: true
+    revision_type: github
+    access_key_id: $AWS_ACCESS_KEY # Travis repo settings에 설정된 값
+    secret_access_key: $AWS_SECRET_KEY # Travis repo settings에 설정된 값
+    application: hj-entrant-codedeploy-app # AWS 배포 애플리케이션
+    deployment_group: hj-entrant-codedeploy-group # AWS 배포 애플리케이션에 만들어져 있는 배포 그룹
+    region: ap-northeast-2
+    wait-until-deployed: true
 #  - provider: codedeploy # AWS CodeDeploy를 의미
 #    access_key_id: $AWS_ACCESS_KEY # Travis repo settings에 설정된 값
 #    secret_access_key: $AWS_SECRET_KEY # Travis repo settings에 설정된 값
