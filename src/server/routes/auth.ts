@@ -5,14 +5,24 @@ import passport from 'passport';
 import { User } from 'database/models/User';
 import { assertAll, email, presence } from 'property-validator';
 import { isAuthenticated } from 'server/passport';
-import { makeFailResponse, makeSuccessResponse } from 'server/utils/result';
+import {
+  CLIENT_ERROR,
+  CREATED_CODE,
+  SERVER_ERROR,
+  SUCCESS_CODE,
+} from 'server/routes/constants';
+import {
+  makeFailJson,
+  makeFailResponse,
+  makeSuccessJson,
+  makeSuccessResponse,
+} from 'server/utils/result';
 
 export class AuthRouter {
-  constructor() {
-    this.router = Router();
-    this.init();
+  public static router: Router = Router();
+  public static getInstance() {
+    return this.router;
   }
-  public router: Router;
 
   public register(req: Request, res: Response) {
     assertAll(req, [email('email'), presence('password')]);
@@ -22,21 +32,27 @@ export class AuthRouter {
       { session: false },
       (err: Error, user: User, info) => {
         if (err) {
-          return res.status(500).json(makeFailResponse(err.message));
+          return makeFailResponse(res, SERVER_ERROR, err.message);
         }
         if (!user || info) {
-          return res.status(400).json(makeFailResponse(info.message));
+          return makeFailResponse(res, CLIENT_ERROR, info.message);
         }
 
         req.login(user, { session: false }, (loginError: Error) => {
           if (loginError) {
-            return res.status(500).json(makeFailResponse(loginError.message));
+            return makeFailResponse(res, SERVER_ERROR, loginError.message);
           }
 
-          const token = jwt.sign(user.toJSON(), process.env.JWT_SECRET);
-          return res
-            .status(201)
-            .json(makeSuccessResponse({ user, token }, '가입 성공했습니다.'));
+          const token = jwt.sign(user.toJSON(), process.env.JWT_SECRET, {
+            expiresIn: 60 * 60 * 24,
+          });
+
+          return makeSuccessResponse(
+            res.cookie('access_token', token),
+            CREATED_CODE,
+            { user, token },
+            '가입 성공했습니다.',
+          );
         });
       },
     )(req, res);
@@ -50,20 +66,26 @@ export class AuthRouter {
       { session: false },
       (err: Error, user: User, info) => {
         if (err) {
-          return res.status(500).json(makeFailResponse(err.message));
+          return makeFailResponse(res, SERVER_ERROR, err.message);
         }
         if (!user || info) {
-          return res.status(400).json(makeFailResponse(info.message));
+          return makeFailResponse(res, CLIENT_ERROR, info.message);
         }
 
         req.login(user, { session: false }, (loginError: Error) => {
           if (loginError) {
-            return res.status(500).json(makeFailResponse(loginError.message));
+            return makeFailResponse(res, SERVER_ERROR, loginError.message);
           }
-          const token = jwt.sign(user.toJSON(), process.env.JWT_SECRET);
-          return res
-            .status(200)
-            .json(makeSuccessResponse({ user, token }, '로그인 성공했습니다.'));
+          const token = jwt.sign(user.toJSON(), process.env.JWT_SECRET, {
+            expiresIn: 60 * 60 * 24,
+          });
+
+          return makeSuccessResponse(
+            res.cookie('access_token', token),
+            SUCCESS_CODE,
+            { user, token },
+            '로그인 성공했습니다.',
+          );
         });
       },
     )(req, res);
@@ -72,17 +94,20 @@ export class AuthRouter {
   public loginCheck(req: Request, res: Response) {
     const { user } = req;
 
-    return res.status(200).json(makeSuccessResponse({ user }, '로그인 성공~'));
+    return res
+      .status(SUCCESS_CODE)
+      .json(makeSuccessJson({ user }, '로그인 성공~'));
   }
 
-  public init() {
-    this.router.post('/register', this.register);
-    this.router.post('/login', this.login);
-    this.router.get('/login_check', isAuthenticated, this.loginCheck);
+  public init(router: Router) {
+    router.post('/register', this.register);
+    router.post('/login', this.login);
+    router.get('/login_check', isAuthenticated, this.loginCheck);
   }
 }
 
 const authRoutes = new AuthRouter();
-authRoutes.init();
+const authRouter = AuthRouter.getInstance();
+authRoutes.init(authRouter);
 
-export default authRoutes.router;
+export default authRouter;

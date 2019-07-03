@@ -2,6 +2,12 @@ import { Author } from 'database/models/Author';
 import { NextFunction, Request, Response, Router } from 'express';
 import asyncHandler from 'express-async-handler';
 import { assertAll, isNumeric, presence } from 'property-validator';
+import {
+  CREATED_CODE,
+  NOT_FOUND_ERROR,
+  SERVER_ERROR,
+  SUCCESS_CODE,
+} from 'server/routes/constants';
 import { makeFailResponse, makeSuccessResponse } from 'server/utils/result';
 
 export class AuthorRouter {
@@ -19,13 +25,13 @@ export class AuthorRouter {
       desc,
     });
 
-    res.status(200).send(makeSuccessResponse(author, '작가 생성 완료.'));
+    return makeSuccessResponse(res, CREATED_CODE, author, '작가 생성 완료.');
   }
 
   public async getAll(req: Request, res: Response, next: NextFunction) {
     const authors: Author[] = await Author.findAll();
 
-    res.status(200).send(makeSuccessResponse(authors, '다 가져옴'));
+    return makeSuccessResponse(res, SUCCESS_CODE, authors, '다 가져옴');
   }
 
   public async getOne(req: Request, res: Response, next: NextFunction) {
@@ -34,9 +40,13 @@ export class AuthorRouter {
     const author = await Author.findByPk(query);
 
     if (author) {
-      res.status(200).send(makeSuccessResponse(author, '하나 가져옴'));
+      return makeSuccessResponse(res, SUCCESS_CODE, author, '하나 가져옴');
     } else {
-      res.status(404).send(makeFailResponse('그런 아이디를 가진 작가는 없음'));
+      return makeFailResponse(
+        res,
+        NOT_FOUND_ERROR,
+        '그런 아이디를 가진 작가는 없음',
+      );
     }
   }
 
@@ -50,16 +60,20 @@ export class AuthorRouter {
         },
       });
       if (destroyedCount === 0) {
-        return res
-          .status(404)
-          .send(makeFailResponse('그런 아이디를 가진 작가는 없음'));
+        return makeFailResponse(
+          res,
+          NOT_FOUND_ERROR,
+          '그런 아이디를 가진 작가는 없음',
+        );
       }
-
-      res
-        .status(200)
-        .send(makeSuccessResponse({ destroyedCount }, '제거 성공'));
+      return makeSuccessResponse(
+        res,
+        SUCCESS_CODE,
+        { destroyedCount },
+        '제거 성공',
+      );
     } catch (err) {
-      res.status(500).send(makeFailResponse('뭔가 서버 에러 남'));
+      return makeFailResponse(res, SERVER_ERROR, '뭔가 서버 에러 남');
     }
   }
 
@@ -72,6 +86,5 @@ export class AuthorRouter {
 }
 
 const authorRoutes = new AuthorRouter();
-authorRoutes.init();
 
 export default authorRoutes.router;

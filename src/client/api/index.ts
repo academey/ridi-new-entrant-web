@@ -72,6 +72,7 @@ export async function loginCheck(): Promise<IApiResponse> {
   if (!accessToken) {
     throw new Error('토큰 없음~');
   }
+  // TODO: 토큰 만료 체크 로직 넣기
 
   const data: IApiResponse = await requestApi('auth/login_check', {
     auth: {

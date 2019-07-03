@@ -1,37 +1,53 @@
 "use strict";
+
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable("BookReservation", {
+    return queryInterface.createTable("book_reservation", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      userId: {
+      user_id: {
         type : Sequelize.INTEGER,
         allowNull: false,
+        references: {
+          model: {
+            tableName: 'user',
+          },
+          key: 'id'
+        },
       },
-      bookId: {
+      book_id: {
         type : Sequelize.INTEGER,
         allowNull: false,
+        references: {
+          model: {
+            tableName: 'book',
+          },
+          key: 'id'
+        },
       },
-      endAt: {
+      end_at: {
         type : Sequelize.DATE,
         allowNull: false,
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      updatedAt: {
+      deleted_at: {
+        type: Sequelize.DATE,
+      },
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable("BookReservation");
+    return queryInterface.dropTable("book_reservation");
   },
 
 };

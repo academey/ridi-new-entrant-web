@@ -6,6 +6,7 @@ import { config } from 'dotenv';
 config();
 import App from './App';
 
+// TODO : 개발환경
 debug('ts-express:server');
 
 const port = normalizePort(process.env.PORT || 8080);

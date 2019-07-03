@@ -1,4 +1,6 @@
 "use strict";
+const bcrypt = require('bcrypt');
+const samplePassword = 'password';
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
@@ -12,24 +14,26 @@ module.exports = {
         isBetaMember: false
       }], {});
     */
-    return queryInterface.bulkInsert("User", [{
-      email: "a@b.c",
-      password: "password",
-      createdAt: "2018-12-04",
-      updatedAt: "2018-12-04",
-    },
-      {
-        email: "b@b.c",
-        password: "passwordword",
-        createdAt: "2018-12-04",
-        updatedAt: "2018-12-04",
-      }
-      , {
-        email: "c@b.c",
-        password: "passwordword",
-        createdAt: "2018-12-04",
-        updatedAt: "2018-12-04",
-      }], {});
+    return bcrypt.hash(samplePassword, 12).then((hashedPassword)=>{
+      return queryInterface.bulkInsert("user", [{
+        email: "email@gmail.com",
+        password: hashedPassword,
+        created_at: "2018-12-04",
+        updated_at: "2018-12-04",
+      },
+        {
+          email: "email2@gmail.com",
+          password: hashedPassword,
+          created_at: "2018-12-04",
+          updated_at: "2018-12-04",
+        }
+        , {
+          email: "email3@gmail.com",
+          password: hashedPassword,
+          created_at: "2018-12-04",
+          updated_at: "2018-12-04",
+        }], {});
+    })
   },
 
   down: (queryInterface, Sequelize) => {
@@ -40,7 +44,7 @@ module.exports = {
       Example:
       return queryInterface.bulkDelete('People', null, {});
     */
-    return queryInterface.bulkDelete("User", null, {});
+    return queryInterface.bulkDelete("user", null, {});
 
   },
 };

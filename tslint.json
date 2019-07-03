@@ -3,6 +3,7 @@
   "rules": {
     "no-console": false,
     "jsx-no-lambda": false,
-    "jsx-boolean-value": false
+    "jsx-boolean-value": false,
+    "variable-name": [true, "allow-pascal-case","allow-snake-case"]
   }
 }

@@ -1,4 +1,3 @@
-import * as bodyParser from 'body-parser';
 import cors from 'cors';
 import express, { NextFunction } from 'express';
 import logger from 'morgan';
@@ -6,9 +5,13 @@ import { ValidationError } from 'property-validator';
 
 import './passport';
 
+import { PARAM_VALIDATION_ERROR, SERVER_ERROR } from 'server/routes/constants';
+import { isDevelopment, isProduction, isTest } from 'server/utils/envChecker';
 import { makeFailResponse } from 'server/utils/result';
 import models from '../database/models';
 import route from './routes';
+
+// TODO : Singleton 으로 만들자.
 
 class App {
   constructor() {
@@ -23,16 +26,20 @@ class App {
   public express: express.Application;
 
   private hostBundle(): void {
-    if (process.env.NODE_ENV === 'production') {
+    if (isProduction()) {
       this.express.use('/', express.static('build'));
       this.express.use('/public', express.static('public'));
     }
   }
   private middleware(): void {
-    this.express.use(logger('dev'));
-    this.express.use(express.json());
+    if (isProduction()) {
+      this.express.use(logger('combined'));
+    } else {
+      this.express.use(logger('dev'));
+    }
     this.express.use(cors());
-    this.express.use(bodyParser.urlencoded({ extended: true }));
+    this.express.use(express.json());
+    this.express.use(express.urlencoded({ extended: true }));
   }
 
   private routes(): void {
@@ -46,16 +53,16 @@ class App {
       }
 
       if (err instanceof ValidationError) {
-        return res.status(422).json(makeFailResponse(err.message));
+        return makeFailResponse(res, PARAM_VALIDATION_ERROR, err.message);
       } else {
-        return res.status(500).json(makeFailResponse(err.message));
+        return makeFailResponse(res, SERVER_ERROR, err.message);
       }
     });
   }
 
   public async syncDB() {
     try {
-      if (process.env.NODE_ENV === 'test') {
+      if (isTest() || isDevelopment()) {
         return;
       }
       await models.sequelize.sync();

@@ -1,15 +1,18 @@
+import * as bcrypt from 'bcrypt';
 import {
   AllowNull,
   Column,
   CreatedAt,
-  HasOne,
+  HasMany,
   Model,
   Table,
   UpdatedAt,
 } from 'sequelize-typescript';
 import { BookReservation } from './BookReservation';
 
-@Table
+@Table({
+  tableName: 'user',
+})
 export class User extends Model<User> {
   @AllowNull(false)
   @Column
@@ -27,7 +30,7 @@ export class User extends Model<User> {
   @Column
   public updatedAt!: Date;
 
-  @HasOne(() => BookReservation, 'userId')
+  @HasMany(() => BookReservation, 'user_id')
   public bookReservation?: BookReservation;
 
   public toJSON(): User {
@@ -35,5 +38,9 @@ export class User extends Model<User> {
 
     delete json.password;
     return json;
+  }
+
+  public authenticate(password: string): boolean {
+    return bcrypt.compareSync(password, this.password);
   }
 }

@@ -12,23 +12,23 @@ module.exports = {
         isBetaMember: false
       }], {});
     */
-    return queryInterface.bulkInsert("Author", [{
+    return queryInterface.bulkInsert("author", [{
       name: "John Doe",
       desc: "hihi",
-      createdAt: "2018-12-04",
-      updatedAt: "2018-12-04",
+      created_at: "2018-12-04",
+      updated_at: "2018-12-04",
     },
       {
         name: "John Doe",
         desc: "hihihihi",
-        createdAt: "2018-12-04",
-        updatedAt: "2018-12-04",
+        created_at: "2018-12-04",
+        updated_at: "2018-12-04",
       }
       , {
         name: "John Doe",
         desc: "hihihihihihihi",
-        createdAt: "2018-12-04",
-        updatedAt: "2018-12-04",
+        created_at: "2018-12-04",
+        updated_at: "2018-12-04",
       }], {});
   },
 
@@ -40,6 +40,6 @@ module.exports = {
       Example:
       return queryInterface.bulkDelete('People', null, {});
     */
-    return queryInterface.bulkDelete("Author", null, {});
+    return queryInterface.bulkDelete("author", null, {});
   },
 };

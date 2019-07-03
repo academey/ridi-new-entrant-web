@@ -13,7 +13,9 @@ import { Author } from './Author';
 import { AuthorBook } from './AuthorBook';
 import { BookReservation } from './BookReservation';
 
-@Table
+@Table({
+  tableName: 'book',
+})
 export class Book extends Model<Book> {
   @AllowNull(false)
   @Column
@@ -34,6 +36,6 @@ export class Book extends Model<Book> {
   @BelongsToMany(() => Author, () => AuthorBook)
   public authors?: Author[];
 
-  @HasOne(() => BookReservation, 'bookId')
+  @HasOne(() => BookReservation, 'book_id')
   public bookReservation?: BookReservation;
 }

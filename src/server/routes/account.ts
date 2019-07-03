@@ -22,6 +22,5 @@ export class AccountRouter {
 }
 
 const accountRoutes = new AccountRouter();
-accountRoutes.init();
 
 export default accountRoutes.router;

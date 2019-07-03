@@ -94,6 +94,7 @@ const withConnect = connect(
 const withReduxForm = reduxForm({
   form: REDUX_FORM_KEY,
 });
+
 export default compose(
   withConnect,
   withReduxForm,

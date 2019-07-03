@@ -9,9 +9,10 @@ import { Strategy as LocalStrategy } from 'passport-local';
 
 import { User } from 'database/models/User';
 import { NextFunction, Request, Response } from 'express';
+import { NOT_AUTHORIZED_ERROR } from 'server/routes/constants';
 import { makeFailResponse } from 'server/utils/result';
 
-const BCRYPT_SALT_ROUNDS = 12;
+export const BCRYPT_SALT_ROUNDS = 12;
 
 passport.use(
   new LocalStrategy(
@@ -29,8 +30,8 @@ passport.use(
       if (!user) {
         return cb(null, false, { message: '해당 유저를 찾을 수 없습니다.' });
       }
-      const response = await bcrypt.compare(password, user.password);
-      if (!response) {
+
+      if (!user.authenticate(password)) {
         return cb(null, false, { message: '비밀번호가 틀렸습니다.' });
       }
 
@@ -105,6 +106,7 @@ export async function isAuthenticated(
   res: Response,
   next: NextFunction,
 ) {
+  // TODO : 이 로직은 테스트에서 모킹으로 처리해야 한다.
   if (process.env.NODE_ENV === 'test') {
     const user = {
       id: 2,
@@ -116,24 +118,15 @@ export async function isAuthenticated(
 
   try {
     const token = ExtractJWT.fromAuthHeaderAsBearerToken()(req);
+
     await jwt.verify(token, process.env.JWT_SECRET);
   } catch (err) {
-    return res
-      .status(401)
-      .json(makeFailResponse('토큰이 없거나 유효하지 않습니다.'));
+    return makeFailResponse(
+      res,
+      NOT_AUTHORIZED_ERROR,
+      '토큰이 없거나 유효하지 않습니다.',
+    );
   }
 
   return passport.authenticate('jwt', { session: false })(req, res, next);
-}
-
-export function mockLogin(req: Request, res: Response, next: NextFunction) {
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  const user = {
-    nickname: 'Outsider',
-  };
-  req.login(user, (err) => {
-    next(err);
-  });
 }

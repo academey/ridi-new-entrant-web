@@ -13,6 +13,7 @@ module.exports = {
     timezone: 'Etc/GMT-9',
     define: {
       freezeTableName: true,
+      underscored: true,
     },
   },
   test: {
@@ -27,6 +28,7 @@ module.exports = {
     timezone: 'Etc/GMT-9',
     define: {
       freezeTableName: true,
+      underscored: true,
     },
     logging: false,
   },
@@ -42,6 +44,7 @@ module.exports = {
     timezone: 'Etc/GMT-9',
     define: {
       freezeTableName: true,
+      underscored: true,
     },
     logging: false,
   },

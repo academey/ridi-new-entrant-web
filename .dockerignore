@@ -13,3 +13,6 @@ README.md
 LICENSE
 
 .vscode
+
+build/
+build

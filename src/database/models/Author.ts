@@ -11,7 +11,9 @@ import {
 import { AuthorBook } from './AuthorBook';
 import { Book } from './Book';
 
-@Table
+@Table({
+  tableName: 'author',
+})
 export class Author extends Model<Author> {
   @AllowNull(false)
   @Column
@@ -23,11 +25,11 @@ export class Author extends Model<Author> {
 
   @CreatedAt
   @Column
-  public createdAt!: Date;
+  public created_at!: Date;
 
   @UpdatedAt
   @Column
-  public updatedAt!: Date;
+  public updated_at!: Date;
 
   @BelongsToMany(() => Book, () => AuthorBook)
   public books?: Book[];

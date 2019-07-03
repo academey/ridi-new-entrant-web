@@ -3,22 +3,20 @@ import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 
 interface ILoginCheckRouteParam {
-  mustNotLoggedIn?: boolean;
+  mustLoggedIn?: boolean;
   component: any;
   [index: string]: any;
 }
 const LoginCheckRoute = ({
   component: Component,
-  mustNotLoggedIn,
+  mustLoggedIn,
   ...rest
 }: ILoginCheckRouteParam) => (
   <Route
     {...rest}
     render={(props) => {
-      const accessSuccess =
-        (!mustNotLoggedIn && getAccessToken()) ||
-        (mustNotLoggedIn && !getAccessToken());
-      const redirectPath = !mustNotLoggedIn ? '/auth/login' : '/';
+      const accessSuccess = mustLoggedIn === !!getAccessToken();
+      const redirectPath = mustLoggedIn ? '/auth/login' : '/';
 
       if (accessSuccess) {
         return React.createElement(Component, props);
