@@ -11,7 +11,6 @@ RUN ls -al /app
 
 #패키지파일들 받기
 RUN npm install
-#도커 내부에서 rebuild 시켜주는 옵션 찾아보자
 #배포버젼으로 설정 - 이 설정으로 환경을 나눌 수 있습니다.
 ENV NODE_ENV=production
 
@@ -19,9 +18,6 @@ ENV NODE_ENV=production
 ENV DOCKERIZE_VERSION v0.2.0
 RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-
-EXPOSE 3000
-EXPOSE 8080
 
 #서버실행
 RUN chmod +x docker-entrypoint.sh
