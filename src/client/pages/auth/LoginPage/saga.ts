@@ -27,8 +27,8 @@ function* loginStartWatcher() {
 }
 
 function* loginSucceededGenerator(action: IStoreAction) {
-  // TODO: 나중에 시간되면 doesRememberThis 를 checkbox 로 입력받아서 변경하자
-  setAccessToken(action.data.token, true);
+  // // TODO: 나중에 시간되면 doesRememberThis 를 checkbox 로 입력받아서 변경하자
+  // setAccessToken(action.data.token, false);
   yield call(notify.show, '로그인 성공!!!', 'success');
   yield put(push('/'));
 }

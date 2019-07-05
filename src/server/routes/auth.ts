@@ -2,6 +2,7 @@ import { Request, Response, Router } from 'express';
 import * as jwt from 'jsonwebtoken';
 import passport from 'passport';
 
+import { ACCESS_TOKEN_KEY } from 'client/utils/storage';
 import { User } from 'database/models/User';
 import { assertAll, email, presence } from 'property-validator';
 import { isAuthenticated } from 'server/passport';
@@ -17,6 +18,7 @@ import {
   makeSuccessJson,
   makeSuccessResponse,
 } from 'server/utils/result';
+import createToken from 'server/utils/createToken';
 
 export class AuthRouter {
   public static router: Router = Router();
@@ -43,9 +45,7 @@ export class AuthRouter {
             return makeFailResponse(res, SERVER_ERROR, loginError.message);
           }
 
-          const token = jwt.sign(user.toJSON(), process.env.JWT_SECRET, {
-            expiresIn: 60 * 60 * 24,
-          });
+          const token = createToken(user);
 
           return makeSuccessResponse(
             res.cookie('access_token', token),
@@ -76,12 +76,10 @@ export class AuthRouter {
           if (loginError) {
             return makeFailResponse(res, SERVER_ERROR, loginError.message);
           }
-          const token = jwt.sign(user.toJSON(), process.env.JWT_SECRET, {
-            expiresIn: 60 * 60 * 24,
-          });
+          const token = createToken(user);
 
           return makeSuccessResponse(
-            res.cookie('access_token', token),
+            res.cookie(ACCESS_TOKEN_KEY, token),
             SUCCESS_CODE,
             { user, token },
             '로그인 성공했습니다.',

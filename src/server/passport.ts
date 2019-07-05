@@ -110,7 +110,7 @@ export async function isAuthenticated(
   if (process.env.NODE_ENV === 'test') {
     const user = {
       id: 2,
-      nickname: 'Outsider',
+      nickname: 'academey',
     };
     req.user = user;
     return next(null);

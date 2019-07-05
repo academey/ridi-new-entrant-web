@@ -1,9 +1,12 @@
+import Cookies from 'js-cookie';
+export const ACCESS_TOKEN_KEY = 'access_token';
+
 export function setAccessTokenInSessionStorage(accessToken: string) {
-  sessionStorage.setItem('accessToken', accessToken);
+  sessionStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
 }
 
 export function setAccessTokenInLocalStorage(accessToken: string) {
-  localStorage.setItem('accessToken', accessToken);
+  localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
 }
 
 export function setAccessToken(accessToken: string, doesRememberThis: boolean) {
@@ -14,47 +17,28 @@ export function setAccessToken(accessToken: string, doesRememberThis: boolean) {
   }
 }
 
-export function setAccountTypeInSessionStorage(accountType: string) {
-  sessionStorage.setItem('accountType', accountType);
-}
-
-export function setAccountTypeInLocalStorage(accountType: string) {
-  localStorage.setItem('accountType', accountType);
-}
-
-export function setAccountType(accountType: string, doesRememberThis: string) {
-  if (doesRememberThis) {
-    setAccountTypeInLocalStorage(accountType);
-  } else {
-    setAccountTypeInSessionStorage(accountType);
-  }
+function getAccessTokenInCookie() {
+  return Cookies.get(ACCESS_TOKEN_KEY);
 }
 
 function getAccessTokenInSessionStorage() {
-  return sessionStorage.getItem('accessToken');
+  return sessionStorage.getItem(ACCESS_TOKEN_KEY);
 }
 
 function getAccessTokenInLocalStorage() {
-  return localStorage.getItem('accessToken');
+  return localStorage.getItem(ACCESS_TOKEN_KEY);
 }
 
-export function getAccessToken() {
-  return getAccessTokenInSessionStorage() || getAccessTokenInLocalStorage();
-}
-
-function getAccountTypeInSessionStorage() {
-  return sessionStorage.getItem('accountType');
-}
-
-function getAccountTypeInLocalStorage() {
-  return localStorage.getItem('accountType');
-}
-
-export function getAccountType() {
-  return getAccountTypeInSessionStorage() || getAccountTypeInLocalStorage();
+export function getAccessToken(): string {
+  return (
+    getAccessTokenInCookie() ||
+    getAccessTokenInSessionStorage() ||
+    getAccessTokenInLocalStorage()
+  );
 }
 
 export function clearStorage() {
   sessionStorage.clear();
   localStorage.clear();
+  Cookies.remove(ACCESS_TOKEN_KEY);
 }
