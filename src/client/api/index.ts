@@ -1,5 +1,6 @@
-import requestApi from 'client/api/request';
+import { requestApi, requestApiWithAuthentication } from 'client/api/request';
 import { getAccessToken } from 'client/utils/storage';
+import moment from 'moment';
 import { IApiResponse } from 'server/utils/result';
 
 export async function requestBooks(): Promise<IApiResponse> {
@@ -13,36 +14,42 @@ export async function requestBook(id: string): Promise<IApiResponse> {
   return data;
 }
 
-export async function borrowBook(id: string): Promise<IApiResponse> {
-  const accessToken = getAccessToken();
-  if (!accessToken) {
-    throw new Error('로그인하세요~');
-  }
-  const data: IApiResponse = await requestApi(`books/${id}/borrow`, {
-    method: 'POST',
-    auth: {
-      bearer: accessToken,
+export async function borrowBook(
+  id: string,
+  borrowDuration: string,
+): Promise<IApiResponse> {
+  const endAt = moment().add(borrowDuration, 'm');
+  const data: IApiResponse = await requestApiWithAuthentication(
+    `books/${id}/borrow`,
+    {
+      method: 'POST',
+      data: {
+        endAt,
+      },
     },
-    body: {
-      // TODO: 현재 반납 시각을 입력받는 인풋이 없어서 하드코딩 해 둠. 추후 인풋이 생기면 받고, 검증한 뒤 요청 날릴 예정
-      endAt: '2019-06-01',
-    },
-  });
+  );
 
   return data;
 }
 
 export async function returnBook(id: string): Promise<IApiResponse> {
-  const accessToken = getAccessToken();
-  if (!accessToken) {
-    throw new Error('로그인하세요~');
-  }
-  const data: IApiResponse = await requestApi(`books/${id}/return`, {
-    method: 'POST',
-    auth: {
-      bearer: accessToken,
+  const data: IApiResponse = await requestApiWithAuthentication(
+    `books/${id}/return`,
+    {
+      method: 'POST',
     },
-  });
+  );
+
+  return data;
+}
+
+export async function checkAvailableToBorrowBook(): Promise<IApiResponse> {
+  const data: IApiResponse = await requestApiWithAuthentication(
+    `books/check_available_to_borrow`,
+    {
+      method: 'POST',
+    },
+  );
 
   return data;
 }
@@ -58,7 +65,7 @@ export async function login({
 }: ILoginParam): Promise<IApiResponse> {
   const data: IApiResponse = await requestApi('auth/login', {
     method: 'POST',
-    body: {
+    data: {
       email,
       password,
     },
@@ -66,19 +73,10 @@ export async function login({
 
   return data;
 }
-
 export async function loginCheck(): Promise<IApiResponse> {
-  const accessToken = getAccessToken();
-  if (!accessToken) {
-    throw new Error('토큰 없음~');
-  }
-  // TODO: 토큰 만료 체크 로직 넣기
-
-  const data: IApiResponse = await requestApi('auth/login_check', {
-    auth: {
-      bearer: accessToken,
-    },
-  });
+  const data: IApiResponse = await requestApiWithAuthentication(
+    'auth/login_check',
+  );
 
   return data;
 }
@@ -94,7 +92,7 @@ export async function register({
 }: IRegisterParam): Promise<IApiResponse> {
   const data: IApiResponse = await requestApi('auth/register', {
     method: 'POST',
-    body: {
+    data: {
       email,
       password,
     },

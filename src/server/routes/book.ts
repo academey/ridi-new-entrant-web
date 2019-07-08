@@ -1,8 +1,11 @@
 import { Book } from 'database/models/Book';
 import { BookReservation } from 'database/models/BookReservation';
+import { ReservationPenalty } from 'database/models/ReservationPenalty';
 import { NextFunction, Request, Response, Router } from 'express';
 import asyncHandler from 'express-async-handler';
+import moment = require('moment');
 import { assertAll, isDate, isNumeric, presence } from 'property-validator';
+import { Op } from 'sequelize';
 import { isAuthenticated } from 'server/passport';
 import {
   CONFLICT_ERROR,
@@ -111,7 +114,6 @@ export class BookRouter {
         '이미 누군아에 의해 빌려졌습니다.',
       );
     }
-
     const createdBookReservation = await BookReservation.create({
       userId,
       bookId,
@@ -144,6 +146,15 @@ export class BookRouter {
       return makeFailResponse(res, NOT_AUTHORIZED_ERROR, '예약 한 사람이 아님');
     }
 
+    const diff = moment().diff(moment(bookReservation.endAt));
+    let createdReservationPenalty;
+    if (diff > 0) {
+      createdReservationPenalty = await ReservationPenalty.create({
+        userId,
+        bookReservationId: bookReservation.id,
+        endAt: moment().add(diff),
+      });
+    }
     const destroyedCount = await BookReservation.destroy({
       where: {
         userId,
@@ -155,12 +166,55 @@ export class BookRouter {
       return makeSuccessResponse(
         res,
         SUCCESS_CODE,
-        { destroyedCount },
+        { destroyedCount, createdReservationPenalty },
         '반납 성공',
       );
     } else {
       return makeFailResponse(res, SERVER_ERROR, '반납에 실패함');
     }
+  }
+
+  public async checkAvailableToBorrow(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    const userId = req.user.id;
+    const currentTime = moment();
+    let availableToBorrow = true;
+    const reservationPenalty: ReservationPenalty = await ReservationPenalty.findOne(
+      {
+        where: {
+          userId,
+          endAt: {
+            [Op.gt]: currentTime, // endAt > currentTime Query
+          },
+        },
+        order: [['end_at', 'DESC']],
+      },
+    );
+    if (!reservationPenalty) {
+      return makeSuccessResponse(
+        res,
+        SUCCESS_CODE,
+        { availableToBorrow },
+        '확인 완료',
+      );
+    }
+
+    const reservationPenaltyEndAt = moment(reservationPenalty.endAt);
+    availableToBorrow =
+      currentTime.diff(reservationPenaltyEndAt) > 0 ? true : false;
+
+    return makeSuccessResponse(
+      res,
+      SUCCESS_CODE,
+      {
+        reservationPenaltyEndAt: reservationPenaltyEndAt.toISOString(true),
+        availableToBorrow,
+      },
+      '확인 완료',
+    );
   }
 
   public init() {
@@ -171,6 +225,11 @@ export class BookRouter {
 
     this.router.post('/:id/borrow', isAuthenticated, asyncHandler(this.borrow));
     this.router.post('/:id/return', isAuthenticated, asyncHandler(this.return));
+    this.router.post(
+      '/check_available_to_borrow',
+      isAuthenticated,
+      asyncHandler(this.checkAvailableToBorrow),
+    );
   }
 }
 

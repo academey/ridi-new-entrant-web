@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { NextFunction } from 'express';
 import logger from 'morgan';
@@ -28,18 +29,21 @@ class App {
   private hostBundle(): void {
     if (isProduction()) {
       this.express.use('/', express.static('build'));
-      this.express.use('/public', express.static('public'));
     }
   }
+
   private middleware(): void {
     if (isProduction()) {
       this.express.use(logger('combined'));
     } else {
       this.express.use(logger('dev'));
     }
-    this.express.use(cors());
+    this.express.use(
+      cors({ credentials: true, origin: 'http://0.0.0.0:3000' }),
+    );
     this.express.use(express.json());
     this.express.use(express.urlencoded({ extended: true }));
+    this.express.use(cookieParser());
   }
 
   private routes(): void {

@@ -1,10 +1,16 @@
-import { borrowBook, requestBooks, returnBook } from 'client/api';
+import {
+  borrowBook,
+  checkAvailableToBorrowBook,
+  requestBooks,
+  returnBook,
+} from 'client/api';
 import { IStoreAction } from 'client/store';
 import {
   actionCreators,
   BOOK_BORROW_FAILED,
   BOOK_BORROW_START,
   BOOK_BORROW_SUCCEEDED,
+  BOOK_CHECK_AVAILABLE_TO_BORROW_START,
   BOOK_GET_LIST_DATA_START,
   BOOK_RETURN_FAILED,
   BOOK_RETURN_START,
@@ -32,8 +38,8 @@ function* bookGetListDataStartWatcher() {
 
 function* bookBorrowStartGenerator(action: IStoreAction) {
   try {
-    const { bookId } = action.data;
-    const { result, message } = yield call(borrowBook, bookId);
+    const { bookId, borrowDuration } = action.data;
+    const { result, message } = yield call(borrowBook, bookId, borrowDuration);
 
     yield put(actionCreators.borrowSucceeded(result, message));
   } catch (error) {
@@ -60,6 +66,23 @@ function* bookReturnStartWatcher() {
   yield takeEvery(BOOK_RETURN_START, bookReturnStartGenerator);
 }
 
+function* bookCheckAvailableToBorrowGenerator() {
+  try {
+    const { result, message } = yield call(checkAvailableToBorrowBook);
+
+    yield put(actionCreators.checkAvailableToBorrowSucceeded(result, message));
+  } catch (error) {
+    yield put(actionCreators.checkAvailableToBorrowFailed(error));
+  }
+}
+
+function* bookCheckAvailableToBorrowStartWatcher() {
+  yield takeEvery(
+    [BOOK_CHECK_AVAILABLE_TO_BORROW_START, BOOK_RETURN_SUCCEEDED],
+    bookCheckAvailableToBorrowGenerator,
+  );
+}
+
 function* bookBorrowAndReturnFailedGenerator(action: IStoreAction) {
   yield call(notify.show, action.error.message, 'error');
 }
@@ -75,5 +98,6 @@ export default function* rootSaga() {
   yield fork(bookGetListDataStartWatcher);
   yield fork(bookBorrowStartWatcher);
   yield fork(bookReturnStartWatcher);
+  yield fork(bookCheckAvailableToBorrowStartWatcher);
   yield fork(bookBorrowAndReturnFailedWatcher);
 }

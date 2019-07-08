@@ -8,9 +8,9 @@ module.exports = {
     host: 'localhost', // 로컬로 접근할 수 있는 mariadb 가 켜져있어야 함.
     dialect: 'mariadb',
     dialectOptions: {
-      timezone: 'Etc/GMT-9',
+      timezone: '+09:00',
     },
-    timezone: 'Etc/GMT-9',
+    timezone: '+09:00',
     define: {
       freezeTableName: true,
       underscored: true,
@@ -23,9 +23,9 @@ module.exports = {
     host: process.env.DB_HOST,
     dialect: 'mariadb',
     dialectOptions: {
-      timezone: 'Etc/GMT-9',
+      timezone: '+09:00',
     },
-    timezone: 'Etc/GMT-9',
+    timezone: '+09:00',
     define: {
       freezeTableName: true,
       underscored: true,
@@ -39,9 +39,9 @@ module.exports = {
     host: process.env.DB_HOST,
     dialect: 'mariadb',
     dialectOptions: {
-      timezone: 'Etc/GMT-9',
+      timezone: '+09:00',
     },
-    timezone: 'Etc/GMT-9',
+    timezone: '+09:00',
     define: {
       freezeTableName: true,
       underscored: true,
