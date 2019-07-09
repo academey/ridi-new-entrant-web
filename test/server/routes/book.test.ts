@@ -1,5 +1,3 @@
-import { Book } from 'database/models/Book';
-import { BookReservation } from 'database/models/BookReservation';
 import App from 'server/App';
 import * as passport from 'server/passport';
 import sinon from 'sinon';
@@ -8,14 +6,27 @@ import request from 'supertest';
 import { NextFunction, Request, Response } from 'express';
 import { isAuthenticated } from 'server/passport';
 import {
+  CLIENT_ERROR,
+  CONFLICT_ERROR,
+  CREATED_CODE,
+  NOT_FOUND_ERROR,
+  PARAM_VALIDATION_ERROR,
+  SUCCESS_CODE,
+} from 'server/routes/constants';
+import bookReservationService from 'server/service/bookReservationService';
+import bookService from 'server/service/bookService';
+import reservationPenaltyService from 'server/service/reservationPenaltyService';
+import {
   mockBook,
   mockBookId,
   mockBookList,
   mockBookParam,
   mockBookReservation,
   mockBookReservationParam,
+  mockDelayedBookReservation,
+  mockDelayedBookReservationParam,
+  mockReservationPenalty,
   mockUserId,
-  whereQuery,
 } from '../constants';
 
 describe('Test /api/books', () => {
@@ -24,139 +35,113 @@ describe('Test /api/books', () => {
   });
 
   test('api book createOne', async () => {
-    const bookMock = sinon.mock(Book);
+    const bookServiceMock = sinon.mock(bookService);
 
-    bookMock
+    bookServiceMock
       .expects('create')
       .withArgs(mockBookParam)
       .resolves(mockBook);
-    // TODO : 아래 코드가 never called 인데 이유를 모르겠음.
-    // bookMock
+    // TODO : 아직도 안 불려짐 왜인지는 모르겠음
+    // bookServiceMock
     //   .expects('create')
-    //   .once()
-    //   .withArgs(mockBookParam);
+    //   .withArgs(mockBookParam)
+    //   .once();
+
     const response = await request(App)
       .post('/api/books')
       .send(mockBookParam)
-      .expect(201);
+      .expect(CREATED_CODE);
     expect(response.body.result).toEqual(mockBook);
 
-    bookMock.verify();
+    bookServiceMock.verify();
   });
 
   test('api book createOne Param Validation fail', async () => {
     await request(App)
       .post('/api/books')
       .send({ name: 'john' })
-      .expect(422);
+      .expect(PARAM_VALIDATION_ERROR);
   });
 
   test('api book getAll', async () => {
-    const bookMock = sinon.mock(Book);
-    bookMock
+    const bookServiceMock = sinon.mock(bookService);
+
+    bookServiceMock
       .expects('findAll')
       .withArgs()
       .resolves(mockBookList);
 
     const response = await request(App)
       .get('/api/books')
-      .expect(200);
+      .expect(SUCCESS_CODE);
     expect(response.body.result).toEqual(mockBookList);
-
-    bookMock.verify();
   });
 
   test('api book getOne', async () => {
-    const bookMock = sinon.mock(Book);
-    bookMock
-      .expects('findByPk')
-      .withArgs(1)
+    const bookServiceMock = sinon.mock(bookService);
+    bookServiceMock
+      .expects('findById')
+      .withArgs(mockBookId)
       .resolves(mockBook);
 
     const response = await request(App)
-      .get('/api/books/1')
-      .expect(200);
+      .get(`/api/books/${mockBookId}`)
+      .expect(SUCCESS_CODE);
     expect(response.body.result).toEqual(mockBook);
-
-    bookMock.verify();
   });
 
   test('api book getOne Not found', async () => {
-    const bookMock = sinon.mock(Book);
-    bookMock
-      .expects('findByPk')
-      .withArgs(1)
+    const bookServiceMock = sinon.mock(bookService);
+    bookServiceMock
+      .expects('findById')
+      .withArgs(mockBookId)
       .resolves(null);
 
     await request(App)
-      .get('/api/books/1')
-      .expect(404);
+      .get(`/api/books/${mockBookId}`)
+      .expect(NOT_FOUND_ERROR);
   });
 
   test('api book getOne Param Validation fail', async () => {
     await request(App)
       .get('/api/books/fdsfs')
-      .expect(422);
+      .expect(PARAM_VALIDATION_ERROR);
   });
 
   test('api book deleteOne', async () => {
-    const bookMock = sinon.mock(Book);
-    bookMock
-      .expects('destroy')
-      .withArgs({
-        where: {
-          id: 1,
-        },
-      })
+    const bookServiceMock = sinon.mock(bookService);
+    bookServiceMock
+      .expects('destroyById')
+      .withArgs(mockBookId)
       .resolves(1);
 
     const response = await request(App)
-      .delete('/api/books/1')
-      .expect(200);
+      .delete(`/api/books/${mockBookId}`)
+      .expect(SUCCESS_CODE);
     expect(response.body.result).toEqual({ destroyedCount: 1 });
-
-    bookMock.verify();
   });
 
   test('api book deleteOne Not found', async () => {
-    const bookMock = sinon.mock(Book);
-    bookMock
-      .expects('destroy')
-      .withArgs({
-        where: {
-          id: 1,
-        },
-      })
+    const bookServiceMock = sinon.mock(bookService);
+    bookServiceMock
+      .expects('destroyById')
+      .withArgs(mockBookId)
       .resolves(0);
 
     await request(App)
-      .delete('/api/books/1')
-      .expect(404);
+      .delete(`/api/books/${mockBookId}`)
+      .expect(NOT_FOUND_ERROR);
   });
 
   test('api book deleteOne Param Validation fail', async () => {
     await request(App)
       .delete('/api/books/no_number')
-      .expect(422);
+      .expect(PARAM_VALIDATION_ERROR);
   });
 
   test('api book borrow', async () => {
-    const passportMock = sinon.mock(passport);
-    const bookMock = sinon.mock(Book);
-    bookMock
-      .expects('findByPk')
-      .withArgs(mockBookId)
-      .resolves(mockBook);
-    const bookReservationMock = sinon.mock(BookReservation);
-    bookReservationMock
-      .expects('findOne')
-      .withArgs(
-        whereQuery({
-          bookId: mockBookId,
-        }),
-      )
-      .resolves(null);
     // TODO: 왜 이건 또 안 먹지?
+    const passportMock = sinon.mock(passport);
     passportMock
       .expects('isAuthenticated')
       .returns((req: Request, res: Response, next: NextFunction) => {
@@ -167,7 +152,31 @@ describe('Test /api/books', () => {
         };
         next(null);
       });
-    bookReservationMock
+
+    const bookServiceMock = sinon.mock(bookService);
+    const bookReservationServiceMock = sinon.mock(bookReservationService);
+    const reservationPenaltyServiceMock = sinon.mock(reservationPenaltyService);
+
+    bookServiceMock
+      .expects('findById')
+      .withArgs(mockBookId)
+      .resolves(mockBook);
+
+    bookReservationServiceMock
+      .expects('findByBookId')
+      .withArgs(mockBookId)
+      .resolves(null);
+    reservationPenaltyServiceMock
+      .expects('findOneLaterThanTime')
+      .withArgs(mockUserId)
+      .resolves(null);
+
+    bookReservationServiceMock
+      .expects('findOnePrevThanTime')
+      .withArgs(mockUserId)
+      .resolves(null);
+
+    bookReservationServiceMock
       .expects('create')
       .withArgs(mockBookReservationParam)
       .resolves(mockBookReservation);
@@ -175,52 +184,77 @@ describe('Test /api/books', () => {
     const response = await request(App)
       .post(`/api/books/${mockBookId}/borrow`)
       .send(mockBookReservationParam)
-      .expect(200);
+      .expect(SUCCESS_CODE);
     expect(response.body.result).toEqual(mockBookReservation);
-
-    bookReservationMock.verify();
   });
 
   test('api book borrow Book not exists', async () => {
-    const bookMock = sinon.mock(Book);
-    bookMock
-      .expects('findByPk')
+    const bookServiceMock = sinon.mock(bookService);
+    bookServiceMock
+      .expects('findById')
       .withArgs(mockBookId)
       .resolves(null);
 
     await request(App)
       .post(`/api/books/${mockBookId}/borrow`)
       .send(mockBookReservationParam)
-      .expect(404);
+      .expect(NOT_FOUND_ERROR);
   });
 
   test('api book borrow Book Reservation exists', async () => {
-    const bookMock = sinon.mock(Book);
-    bookMock
-      .expects('findByPk')
+    const bookServiceMock = sinon.mock(bookService);
+    const bookReservationServiceMock = sinon.mock(bookReservationService);
+    bookServiceMock
+      .expects('findById')
       .withArgs(mockBookId)
       .resolves(mockBook);
 
-    const bookReservationMock = sinon.mock(BookReservation);
-    bookReservationMock
-      .expects('findOne')
-      .withArgs(
-        whereQuery({
-          bookId: mockBookId,
-        }),
-      )
+    bookReservationServiceMock
+      .expects('findByBookId')
+      .withArgs(mockBookId)
       .resolves(mockBookReservation);
 
     await request(App)
       .post(`/api/books/${mockBookId}/borrow`)
       .send(mockBookReservationParam)
-      .expect(409);
+      .expect(CONFLICT_ERROR);
+  });
+
+  test('api book borrow Book penalty or delayedReservation exists', async () => {
+    const bookServiceMock = sinon.mock(bookService);
+    const bookReservationServiceMock = sinon.mock(bookReservationService);
+    const reservationPenaltyServiceMock = sinon.mock(reservationPenaltyService);
+
+    bookServiceMock
+      .expects('findById')
+      .withArgs(mockBookId)
+      .resolves(mockBook);
+
+    bookReservationServiceMock
+      .expects('findByBookId')
+      .withArgs(mockBookId)
+      .resolves(null);
+
+    reservationPenaltyServiceMock
+      .expects('findOneLaterThanTime')
+      .withArgs(mockUserId)
+      .resolves(null);
+
+    bookReservationServiceMock
+      .expects('findOnePrevThanTime')
+      .withArgs(mockUserId)
+      .resolves(mockReservationPenalty);
+
+    await request(App)
+      .post(`/api/books/${mockBookId}/borrow`)
+      .send(mockBookReservationParam)
+      .expect(CLIENT_ERROR);
   });
 
   test('api book borrow Param Validation fail', async () => {
     await request(App)
       .post(`/api/books/${mockBookId}/borrow`)
-      .expect(422);
+      .expect(PARAM_VALIDATION_ERROR);
   });
 
   test('api book borrow Param Validation isDate fail', async () => {
@@ -229,58 +263,147 @@ describe('Test /api/books', () => {
       .send({
         endAt: '201922992-06-01',
       })
-      .expect(422);
+      .expect(PARAM_VALIDATION_ERROR);
   });
 
   test('api book return', async () => {
-    const bookReservationMock = sinon.mock(BookReservation);
-    bookReservationMock
-      .expects('findOne')
-      .withArgs(
-        whereQuery({
-          bookId: mockBookId,
-        }),
-      )
+    const bookReservationServiceMock = sinon.mock(bookReservationService);
+    bookReservationServiceMock
+      .expects('findByBookId')
+      .withArgs(mockBookId)
       .resolves(mockBookReservation);
-    bookReservationMock
-      .expects('destroy')
-      .withArgs(
-        whereQuery({
-          userId: mockUserId,
-          bookId: mockBookId,
-        }),
-      )
+    bookReservationServiceMock
+      .expects('destroyById')
+      .withArgs(mockUserId, mockBookId)
       .resolves(1);
 
     const response = await request(App)
       .post(`/api/books/${mockBookId}/return`)
       .send(mockBookReservationParam)
-      .expect(200);
+      .expect(SUCCESS_CODE);
     expect(response.body.result).toEqual({ destroyedCount: 1 });
+  });
 
-    bookReservationMock.verify();
+  test('api book delayed return', async () => {
+    const bookReservationServiceMock = sinon.mock(bookReservationService);
+    const reservationPenaltyServiceMock = sinon.mock(reservationPenaltyService);
+    bookReservationServiceMock
+      .expects('findByBookId')
+      .withArgs(mockBookId)
+      .resolves(mockDelayedBookReservation);
+
+    reservationPenaltyServiceMock
+      .expects('create')
+      .resolves(mockDelayedBookReservation);
+
+    // TODO: 이것도 작동해야 함.
+    // reservationPenaltyServiceMock.expects('create').once();
+
+    bookReservationServiceMock
+      .expects('destroyById')
+      .withArgs(mockUserId, mockBookId)
+      .resolves(1);
+
+    await request(App)
+      .post(`/api/books/${mockBookId}/return`)
+      .send(mockDelayedBookReservationParam)
+      .expect(SUCCESS_CODE);
+    reservationPenaltyServiceMock.verify();
   });
 
   test('api book return Not found', async () => {
-    const bookReservationMock = sinon.mock(BookReservation);
-    bookReservationMock
-      .expects('findOne')
-      .withArgs(
-        whereQuery({
-          bookId: mockBookId,
-        }),
-      )
+    const bookReservationServiceMock = sinon.mock(bookReservationService);
+    bookReservationServiceMock
+      .expects('findByBookId')
+      .withArgs(mockBookId)
       .resolves(null);
 
     await request(App)
       .post(`/api/books/${mockBookId}/return`)
       .send(mockBookReservationParam)
-      .expect(404);
+      .expect(NOT_FOUND_ERROR);
   });
 
   test('api book return Param Validation fail', async () => {
     await request(App)
       .post(`/api/books/no_number/return`)
-      .expect(422);
+      .expect(PARAM_VALIDATION_ERROR);
+  });
+
+  test('api book checkAvailableToBorrow availableToBorrow True', async () => {
+    const bookReservationServiceMock = sinon.mock(bookReservationService);
+    const reservationPenaltyServiceMock = sinon.mock(reservationPenaltyService);
+
+    reservationPenaltyServiceMock
+      .expects('findOneLaterThanTime')
+      .withArgs(mockUserId)
+      .resolves(null);
+    bookReservationServiceMock
+      .expects('findOnePrevThanTime')
+      .withArgs(mockUserId)
+      .resolves(null);
+
+    const response = await request(App)
+      .post(`/api/books/check_available_to_borrow`)
+      .send(mockBookReservationParam)
+      .expect(SUCCESS_CODE);
+    expect(response.body.result.availableToBorrow).toBeTruthy();
+  });
+
+  test('api book delayed checkAvailableToBorrow availableToBorrow false due to reservationPenalty', async () => {
+    const bookReservationServiceMock = sinon.mock(bookReservationService);
+    const reservationPenaltyServiceMock = sinon.mock(reservationPenaltyService);
+    reservationPenaltyServiceMock
+      .expects('findOneLaterThanTime')
+      .withArgs(mockUserId)
+      .resolves(mockReservationPenalty);
+    bookReservationServiceMock
+      .expects('findOnePrevThanTime')
+      .withArgs(mockUserId)
+      .resolves(null);
+
+    const response = await request(App)
+      .post(`/api/books/check_available_to_borrow`)
+      .send(mockDelayedBookReservationParam)
+      .expect(SUCCESS_CODE);
+    expect(response.body.result.availableToBorrow).toBeFalsy();
+  });
+
+  test('api book delayed checkAvailableToBorrow availableToBorrow false due to delayedBookReservation', async () => {
+    const bookReservationServiceMock = sinon.mock(bookReservationService);
+    const reservationPenaltyServiceMock = sinon.mock(reservationPenaltyService);
+    reservationPenaltyServiceMock
+      .expects('findOneLaterThanTime')
+      .withArgs(mockUserId)
+      .resolves(null);
+    bookReservationServiceMock
+      .expects('findOnePrevThanTime')
+      .withArgs(mockUserId)
+      .resolves(mockDelayedBookReservation);
+
+    const response = await request(App)
+      .post(`/api/books/check_available_to_borrow`)
+      .send(mockDelayedBookReservationParam)
+      .expect(SUCCESS_CODE);
+    expect(response.body.result.availableToBorrow).toBeFalsy();
+  });
+
+  test('api book delayed checkAvailableToBorrow availableToBorrow false due to both of them', async () => {
+    const bookReservationServiceMock = sinon.mock(bookReservationService);
+    const reservationPenaltyServiceMock = sinon.mock(reservationPenaltyService);
+    reservationPenaltyServiceMock
+      .expects('findOneLaterThanTime')
+      .withArgs(mockUserId)
+      .resolves(mockReservationPenalty);
+    bookReservationServiceMock
+      .expects('findOnePrevThanTime')
+      .withArgs(mockUserId)
+      .resolves(mockDelayedBookReservation);
+
+    const response = await request(App)
+      .post(`/api/books/check_available_to_borrow`)
+      .send(mockDelayedBookReservationParam)
+      .expect(SUCCESS_CODE);
+    expect(response.body.result.availableToBorrow).toBeFalsy();
   });
 });

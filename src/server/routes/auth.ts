@@ -17,11 +17,18 @@ import {
   makeSuccessResponse,
 } from 'server/utils/result';
 
-export class AuthRouter {
-  public static router: Router = Router();
-  public static getInstance() {
-    return this.router;
+class AuthRouter {
+  constructor() {
+    if (AuthRouter.instance) {
+      return AuthRouter.instance;
+    }
+    AuthRouter.instance = this;
+    this.router = Router();
+    this.init();
   }
+
+  public static instance: AuthRouter;
+  public router: Router;
 
   public register(req: Request, res: Response) {
     assertAll(req, [email('email'), presence('password')]);
@@ -95,15 +102,13 @@ export class AuthRouter {
       .json(makeSuccessJson({ user }, '로그인 성공~'));
   }
 
-  public init(router: Router) {
-    router.post('/register', this.register);
-    router.post('/login', this.login);
-    router.get('/login_check', isAuthenticated, this.loginCheck);
+  public init() {
+    this.router.post('/register', this.register);
+    this.router.post('/login', this.login);
+    this.router.get('/login_check', isAuthenticated, this.loginCheck);
   }
 }
 
 const authRoutes = new AuthRouter();
-const authRouter = AuthRouter.getInstance();
-authRoutes.init(authRouter);
 
-export default authRouter;
+export default authRoutes.router;

@@ -10,11 +10,17 @@ import {
 } from 'server/routes/constants';
 import { makeFailResponse, makeSuccessResponse } from 'server/utils/result';
 
-export class AuthorRouter {
+class AuthorRouter {
   constructor() {
+    if (AuthorRouter.instance) {
+      return AuthorRouter.instance;
+    }
+    AuthorRouter.instance = this;
     this.router = Router();
     this.init();
   }
+
+  public static instance: AuthorRouter;
   public router: Router;
 
   public async createOne(req: Request, res: Response, next: NextFunction) {

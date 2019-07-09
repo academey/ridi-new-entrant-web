@@ -1,6 +1,8 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { clearStorage, getAccessToken } from 'client/utils/storage';
+import { Secret, TokenExpiredError, verify } from 'jsonwebtoken';
+import { ValidationError } from 'property-validator';
 import { IApiResponse, RESPONSE_STATUS } from 'server/utils/result';
-import { getAccessToken } from 'client/utils/storage';
 
 const URL = `${window.location.hostname}:8080`;
 
@@ -32,18 +34,28 @@ export async function requestApiWithAuthentication(
   path: string,
   options?: AxiosRequestConfig,
 ): Promise<IApiResponse> {
+  const authorizationHeader = await getAuthorizationHeader();
+
   return requestApi(path, {
     ...options,
-    ...getAuthorizationHeader(),
+    ...authorizationHeader,
   });
 }
 
-export function getAuthorizationHeader() {
+export async function getAuthorizationHeader() {
   const accessToken = getAccessToken();
   if (!accessToken) {
-    throw new Error('토큰 없음~');
+    throw new Error('로그인 하세여~');
   }
-  // TODO: 토큰 만료 체크 로직 넣기
+
+  try {
+    await verify(accessToken, process.env.JWT_SECRET);
+  } catch (err) {
+    if (err instanceof TokenExpiredError) {
+      clearStorage();
+    }
+    throw err;
+  }
 
   return {
     headers: {

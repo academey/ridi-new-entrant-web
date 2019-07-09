@@ -1,13 +1,10 @@
-import { Book } from 'database/models/Book';
-import { BookReservation } from 'database/models/BookReservation';
-import { ReservationPenalty } from 'database/models/ReservationPenalty';
 import { NextFunction, Request, Response, Router } from 'express';
 import asyncHandler from 'express-async-handler';
 import moment = require('moment');
 import { assertAll, isDate, isNumeric, presence } from 'property-validator';
-import { Op } from 'sequelize';
 import { isAuthenticated } from 'server/passport';
 import {
+  CLIENT_ERROR,
   CONFLICT_ERROR,
   CREATED_CODE,
   NOT_AUTHORIZED_ERROR,
@@ -15,30 +12,34 @@ import {
   SERVER_ERROR,
   SUCCESS_CODE,
 } from 'server/routes/constants';
+import bookReservationService from 'server/service/bookReservationService';
+import bookService from 'server/service/bookService';
+import reservationPenaltyService from 'server/service/reservationPenaltyService';
 import { makeFailResponse, makeSuccessResponse } from 'server/utils/result';
 
 export class BookRouter {
   constructor() {
+    if (BookRouter.instance) {
+      return BookRouter.instance;
+    }
+    BookRouter.instance = this;
     this.router = Router();
     this.init();
   }
+
+  public static instance: BookRouter;
   public router: Router;
 
   public async createOne(req: Request, res: Response, next: NextFunction) {
     assertAll(req, [presence('name'), presence('desc')]);
     const { name, desc } = req.body;
-    const book = await Book.create({
-      name,
-      desc,
-    });
+
+    const book = await bookService.create({ name, desc });
     return makeSuccessResponse(res, CREATED_CODE, book, '책 생성 완료.');
   }
 
   public async getAll(req: Request, res: Response, next: NextFunction) {
-    const books: Book[] = await Book.findAll({
-      include: [BookReservation],
-      order: ['id', 'DESC'],
-    });
+    const books = await bookService.findAll();
 
     return makeSuccessResponse(res, SUCCESS_CODE, books, '다 가져옴.');
   }
@@ -46,7 +47,7 @@ export class BookRouter {
   public async getOne(req: Request, res: Response, next: NextFunction) {
     assertAll(req, [isNumeric('id')]);
     const bookId = parseInt(req.params.id, 10);
-    const book = await Book.findByPk(bookId);
+    const book = await bookService.findById(bookId);
 
     if (book) {
       return makeSuccessResponse(res, SUCCESS_CODE, book, '하나 가져옴.');
@@ -61,13 +62,9 @@ export class BookRouter {
 
   public async deleteOne(req: Request, res: Response, next: NextFunction) {
     assertAll(req, [isNumeric('id')]);
-    const id = parseInt(req.params.id, 10);
+    const bookId = parseInt(req.params.id, 10);
     try {
-      const destroyedCount = await Book.destroy({
-        where: {
-          id,
-        },
-      });
+      const destroyedCount = await bookService.destroyById(bookId);
       if (destroyedCount === 0) {
         return makeFailResponse(
           res,
@@ -87,12 +84,12 @@ export class BookRouter {
     }
   }
 
-  public async borrow(req: any, res: Response, next: NextFunction) {
+  public async borrow(req: Request, res: Response, next: NextFunction) {
     assertAll(req, [isNumeric('id'), isDate('endAt')]);
     const bookId = parseInt(req.params.id, 10);
-    const { endAt } = req.body;
     const userId = req.user.id;
-    const book = await Book.findByPk(bookId);
+    const { endAt } = req.body;
+    const book = await bookService.findById(bookId);
     if (!book) {
       return makeFailResponse(
         res,
@@ -101,20 +98,35 @@ export class BookRouter {
       );
     }
 
-    const bookReservation = await BookReservation.findOne({
-      where: {
-        bookId,
-      },
-    });
-
+    const bookReservation = await bookReservationService.findByBookId(bookId);
     if (bookReservation) {
       return makeFailResponse(
         res,
         CONFLICT_ERROR,
-        '이미 누군아에 의해 빌려졌습니다.',
+        '이미 누군가에 의해 빌려졌습니다.',
       );
     }
-    const createdBookReservation = await BookReservation.create({
+
+    const currentTime = moment();
+    const reservationPenalty = await reservationPenaltyService.findOneLaterThanTime(
+      userId,
+      currentTime,
+    );
+
+    const delayedBookReservation = await bookReservationService.findOnePrevThanTime(
+      userId,
+      currentTime,
+    );
+
+    if (reservationPenalty || delayedBookReservation) {
+      return makeFailResponse(
+        res,
+        CLIENT_ERROR,
+        '연체 중이거나 제 시간에 반납을 안 해서 못 빌립니다.',
+      );
+    }
+
+    const createdBookReservation = await bookReservationService.create({
       userId,
       bookId,
       endAt,
@@ -131,36 +143,31 @@ export class BookRouter {
     }
   }
 
-  public async return(req: any, res: Response, next: NextFunction) {
+  public async return(req: Request, res: Response, next: NextFunction) {
     assertAll(req, [isNumeric('id')]);
     const bookId = parseInt(req.params.id, 10);
     const userId = req.user.id;
-    const bookReservation = await BookReservation.findOne({
-      where: {
-        bookId,
-      },
-    });
+    const bookReservation = await bookReservationService.findByBookId(bookId);
     if (!bookReservation) {
       return makeFailResponse(res, NOT_FOUND_ERROR, '그런 예약 존재하지 않음');
     } else if (bookReservation.userId !== userId) {
       return makeFailResponse(res, NOT_AUTHORIZED_ERROR, '예약 한 사람이 아님');
     }
 
-    const diff = moment().diff(moment(bookReservation.endAt));
+    const currentTime = moment();
+    const diff = currentTime.diff(moment(bookReservation.endAt));
     let createdReservationPenalty;
     if (diff > 0) {
-      createdReservationPenalty = await ReservationPenalty.create({
+      createdReservationPenalty = await reservationPenaltyService.create({
         userId,
         bookReservationId: bookReservation.id,
-        endAt: moment().add(diff),
+        endAt: currentTime.add(diff * 2),
       });
     }
-    const destroyedCount = await BookReservation.destroy({
-      where: {
-        userId,
-        bookId,
-      },
-    });
+    const destroyedCount = await bookReservationService.destroyById(
+      userId,
+      bookId,
+    );
 
     if (destroyedCount) {
       return makeSuccessResponse(
@@ -181,37 +188,45 @@ export class BookRouter {
   ) {
     const userId = req.user.id;
     const currentTime = moment();
-    let availableToBorrow = true;
-    const reservationPenalty: ReservationPenalty = await ReservationPenalty.findOne(
-      {
-        where: {
-          userId,
-          endAt: {
-            [Op.gt]: currentTime, // endAt > currentTime Query
-          },
-        },
-        order: [['end_at', 'DESC']],
-      },
+    let moreLaterEndAt;
+    const reservationPenalty = await reservationPenaltyService.findOneLaterThanTime(
+      userId,
+      currentTime,
     );
-    if (!reservationPenalty) {
+    if (reservationPenalty) {
+      moreLaterEndAt = moment(reservationPenalty.endAt);
+    }
+
+    const delayedBookReservation = await bookReservationService.findOnePrevThanTime(
+      userId,
+      currentTime,
+    );
+    if (delayedBookReservation) {
+      const delayedBookReservationEndAt = moment(delayedBookReservation.endAt);
+      const diff = currentTime.diff(delayedBookReservationEndAt);
+      const willPenaltyTime = currentTime.add(diff * 2);
+
+      moreLaterEndAt =
+        !!moreLaterEndAt && moreLaterEndAt > willPenaltyTime
+          ? moreLaterEndAt
+          : willPenaltyTime;
+    }
+
+    if (!moreLaterEndAt) {
       return makeSuccessResponse(
         res,
         SUCCESS_CODE,
-        { availableToBorrow },
+        { availableToBorrow: true },
         '확인 완료',
       );
     }
-
-    const reservationPenaltyEndAt = moment(reservationPenalty.endAt);
-    availableToBorrow =
-      currentTime.diff(reservationPenaltyEndAt) > 0 ? true : false;
 
     return makeSuccessResponse(
       res,
       SUCCESS_CODE,
       {
-        reservationPenaltyEndAt: reservationPenaltyEndAt.toISOString(true),
-        availableToBorrow,
+        reservationPenaltyEndAt: moreLaterEndAt.toISOString(true),
+        availableToBorrow: false,
       },
       '확인 완료',
     );

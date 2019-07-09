@@ -1,5 +1,10 @@
 import { Author } from 'database/models/Author';
 import App from 'server/App';
+import {
+  NOT_FOUND_ERROR,
+  PARAM_VALIDATION_ERROR,
+  SUCCESS_CODE,
+} from 'server/routes/constants';
 import sinon from 'sinon';
 import request from 'supertest';
 import {
@@ -39,7 +44,7 @@ describe('Test /api/authors', () => {
     await request(App)
       .post('/api/authors')
       .send({ name: 'john' })
-      .expect(422);
+      .expect(PARAM_VALIDATION_ERROR);
   });
 
   test('api authors getAll', async () => {
@@ -52,7 +57,7 @@ describe('Test /api/authors', () => {
 
     const response = await request(App)
       .get('/api/authors')
-      .expect(200);
+      .expect(SUCCESS_CODE);
     expect(response.body.result).toEqual(mockAuthorList);
 
     authorMock.restore();
@@ -68,7 +73,7 @@ describe('Test /api/authors', () => {
 
     const response = await request(App)
       .get('/api/authors/1')
-      .expect(200);
+      .expect(SUCCESS_CODE);
     expect(response.body.result).toEqual(mockBook);
 
     authorMock.verify();
@@ -83,13 +88,13 @@ describe('Test /api/authors', () => {
 
     await request(App)
       .get('/api/authors/1')
-      .expect(404);
+      .expect(NOT_FOUND_ERROR);
   });
 
   test('api authors getOne Param Validation fail', async () => {
     await request(App)
       .get('/api/authors/fdsfs')
-      .expect(422);
+      .expect(PARAM_VALIDATION_ERROR);
   });
 
   test('api authors deleteOne', async () => {
@@ -105,7 +110,7 @@ describe('Test /api/authors', () => {
 
     const response = await request(App)
       .delete('/api/authors/1')
-      .expect(200);
+      .expect(SUCCESS_CODE);
     expect(response.body.result).toEqual({ destroyedCount: 1 });
 
     authorMock.verify();
@@ -124,12 +129,12 @@ describe('Test /api/authors', () => {
 
     await request(App)
       .delete('/api/authors/1')
-      .expect(404);
+      .expect(NOT_FOUND_ERROR);
   });
 
   test('api authors deleteOne Param Validation fail', async () => {
     await request(App)
       .delete('/api/authors/no_number')
-      .expect(422);
+      .expect(PARAM_VALIDATION_ERROR);
   });
 });

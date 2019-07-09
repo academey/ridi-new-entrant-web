@@ -12,10 +12,12 @@ import { makeFailResponse } from 'server/utils/result';
 import models from '../database/models';
 import route from './routes';
 
-// TODO : Singleton 으로 만들자.
-
 class App {
   constructor() {
+    if (App.instance) {
+      return App.instance;
+    }
+    App.instance = this;
     this.express = express();
     this.hostBundle();
     this.middleware();
@@ -23,7 +25,7 @@ class App {
     this.errorHandling();
     this.syncDB();
   }
-
+  public static instance: App;
   public express: express.Application;
 
   private hostBundle(): void {

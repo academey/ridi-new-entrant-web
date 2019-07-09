@@ -106,8 +106,6 @@ function loginCheckSucceeded(data: any, message: string) {
 }
 
 function loginCheckFailed(error: Error) {
-  clearStorage();
-
   return {
     type: LOGIN_CHECK_FAILED,
     error,
