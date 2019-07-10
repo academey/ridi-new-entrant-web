@@ -5,6 +5,7 @@ export const mockUserId = 2;
 export const mockBookReservationId = 3;
 export const mockAuthorId = 4;
 export const mockReservationPenaltyId = 5;
+export const mockAnotherPersonUserId = 6;
 export const mockEndAt = '2019-09-08';
 
 export const mockBookParam = { name: 'book', desc: 'book description' };
@@ -21,7 +22,7 @@ export const mockBookReservationParam = {
 };
 export const mockDelayedBookReservationParam = {
   userId: mockUserId,
-  bookId: mockBookId,
+  bookReservationId: mockBookReservationId,
   endAt: moment().add(-3, 'days'),
 };
 
@@ -29,6 +30,12 @@ export const mockBookReservation = {
   id: mockBookReservationId,
   ...mockBookReservationParam,
 };
+
+export const mockAnotherPersonBorrowedBookReservation = {
+  ...mockBookReservation,
+  userId: mockAnotherPersonUserId,
+};
+
 
 export const mockDelayedBookReservation = {
   id: mockBookReservationId,
@@ -47,4 +54,14 @@ export const mockReservationPenalty = {
   userId: mockUserId,
   bookReservationId: mockBookReservationId,
   endAt: mockEndAt,
+};
+
+export const mockUserParam  = {
+  email: 'mock@email.com',
+  password: 'mockpassword',
+};
+
+export const mockUser = {
+  id: mockUserId,
+  ...mockUserParam,
 };

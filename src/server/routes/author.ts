@@ -1,4 +1,3 @@
-import { Author } from 'database/models/Author';
 import { NextFunction, Request, Response, Router } from 'express';
 import asyncHandler from 'express-async-handler';
 import { assertAll, isNumeric, presence } from 'property-validator';
@@ -8,6 +7,7 @@ import {
   SERVER_ERROR,
   SUCCESS_CODE,
 } from 'server/routes/constants';
+import authorService from 'server/service/authorService';
 import { makeFailResponse, makeSuccessResponse } from 'server/utils/result';
 
 class AuthorRouter {
@@ -26,24 +26,21 @@ class AuthorRouter {
   public async createOne(req: Request, res: Response, next: NextFunction) {
     assertAll(req, [presence('name'), presence('desc')]);
     const { name, desc } = req.body;
-    const author = await Author.create({
-      name,
-      desc,
-    });
+    const author = await authorService.create({name, desc});
 
     return makeSuccessResponse(res, CREATED_CODE, author, '작가 생성 완료.');
   }
 
   public async getAll(req: Request, res: Response, next: NextFunction) {
-    const authors: Author[] = await Author.findAll();
+    const authors = await authorService.findAll();
 
     return makeSuccessResponse(res, SUCCESS_CODE, authors, '다 가져옴');
   }
 
   public async getOne(req: Request, res: Response, next: NextFunction) {
     assertAll(req, [isNumeric('id')]);
-    const query = parseInt(req.params.id, 10);
-    const author = await Author.findByPk(query);
+    const authorId = parseInt(req.params.id, 10);
+    const author = await authorService.findById(authorId);
 
     if (author) {
       return makeSuccessResponse(res, SUCCESS_CODE, author, '하나 가져옴');
@@ -58,13 +55,9 @@ class AuthorRouter {
 
   public async deleteOne(req: Request, res: Response, next: NextFunction) {
     assertAll(req, [isNumeric('id')]);
-    const query = parseInt(req.params.id, 10);
+    const authorId = parseInt(req.params.id, 10);
     try {
-      const destroyedCount = await Author.destroy({
-        where: {
-          id: query,
-        },
-      });
+      const destroyedCount = await authorService.destroyById(authorId);
       if (destroyedCount === 0) {
         return makeFailResponse(
           res,

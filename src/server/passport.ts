@@ -85,16 +85,6 @@ export async function isAuthenticated(
   res: Response,
   next: NextFunction,
 ) {
-  // TODO : 이 로직은 테스트에서 모킹으로 처리해야 한다.
-  if (process.env.NODE_ENV === 'test') {
-    const user = {
-      id: 2,
-      nickname: 'academey',
-    };
-    req.user = user;
-    return next(null);
-  }
-
   try {
     const token = ExtractJWT.fromAuthHeaderAsBearerToken()(req);
 
