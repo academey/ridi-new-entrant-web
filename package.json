@@ -10,7 +10,9 @@
     "client": "cross-env NODE_PATH=src webpack-dev-server --mode development --devtool inline-source-map --hot",
     "server": "nodemon --exec NODE_PATH=src ts-node src/server/index.ts",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "prod": "NODE_PATH=src NODE_ENV=production ts-node -T src/server/index.ts"
+    "prod": "NODE_PATH=src NODE_ENV=production ts-node -T src/server/index.ts",
+    "compose-dev": "docker-compose up --build",
+    "compose-prod": "docker-compose -f docker-compose.prod.yml up --build"
   },
   "husky": {
     "hooks": {

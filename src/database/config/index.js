@@ -5,7 +5,7 @@ module.exports = {
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
-    host: 'localhost', // 로컬로 접근할 수 있는 mariadb 가 켜져있어야 함.
+    host: process.env.DB_HOST,
     dialect: 'mariadb',
     dialectOptions: {
       timezone: 'Etc/GMT+9',

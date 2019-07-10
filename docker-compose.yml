@@ -1,5 +1,13 @@
 version: '3'
 services:
+  nginx:
+    container_name: nginx
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+      - composed-maria-db
   composed-maria-db:
     container_name: composed-maria-db
     image: mariadb
@@ -17,9 +25,10 @@ services:
       - "3000:3000" # 연결할 포트
       - "8080:8080" # 연결할 포트
     environment: # 환경변수 설정
-      - NODE_PATH=src
-#    volumes: 왜 안됨
-#      - ./:/app/
+      - NODE_ENV=development
+    volumes:
+      - ./:/app/
+      - /app/node_modules/ # /app/node_modules를 비워줌
     depends_on:
       - composed-maria-db
 

@@ -7,7 +7,12 @@ import { ValidationError } from 'property-validator';
 import './passport';
 
 import { PARAM_VALIDATION_ERROR, SERVER_ERROR } from 'server/routes/constants';
-import { isDevelopment, isProduction, isTest } from 'server/utils/envChecker';
+import {
+  getClientHost,
+  isDevelopment,
+  isProduction,
+  isTest,
+} from 'server/utils/envChecker';
 import { makeFailResponse } from 'server/utils/result';
 import models from '../database/models';
 import route from './routes';
@@ -40,9 +45,7 @@ class App {
     } else {
       this.express.use(logger('dev'));
     }
-    this.express.use(
-      cors({ credentials: true, origin: 'http://0.0.0.0:3000' }),
-    );
+    this.express.use(cors({ credentials: true, origin: getClientHost() }));
     this.express.use(express.json());
     this.express.use(express.urlencoded({ extended: true }));
     this.express.use(cookieParser());
