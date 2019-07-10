@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 cd /home/ec2-user/ridi-new-entrant-web
 sudo nvm use 10.16.0
