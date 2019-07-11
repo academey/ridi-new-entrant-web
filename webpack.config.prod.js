@@ -42,9 +42,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: "./public/index.html"
     }),
-    new Dotenv({
-      path: './.env',
-    }),
+    new Dotenv(),
   ],
   node: {
     console: true,

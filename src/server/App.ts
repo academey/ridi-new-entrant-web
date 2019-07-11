@@ -9,7 +9,6 @@ import './passport';
 import { PARAM_VALIDATION_ERROR, SERVER_ERROR } from 'server/routes/constants';
 import {
   getClientHost,
-  isDevelopment,
   isProduction,
   isTest,
 } from 'server/utils/envChecker';

@@ -13,9 +13,10 @@ export const history = createBrowserHistory();
 export default function configureStore(initialState = {}): Store<IStoreState> {
   const sagaMiddleware = createSagaMiddleware();
   const middleWares = [sagaMiddleware, routerMiddleware(history)];
-  if (process.env.NODE_ENV !== 'production') {
-    middleWares.push(logger);
-  }
+  // if (process.env.NODE_ENV !== 'production') {
+  //   middleWares.push(logger);
+  // }
+  middleWares.push(logger);
 
   const enhancers = [applyMiddleware(...middleWares)];
   const composeEnhancers =

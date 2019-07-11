@@ -3,7 +3,7 @@ node_js:
   - "10"
 before_deploy: # 배포하기전 하는 작업들
   - rm -rf node_modules # travis가 설치한 node_moduels를 삭제
-  - zip -r ridi-new-entrant-web * .* # ridi-new-entrant-web 라는 이름으로 zip 파일 생성
+  - zip -r ridi-new-entrant-web * # ridi-new-entrant-web 라는 이름으로 zip 파일 생성
   - mkdir -p deploy # deploy 라는 디렉터리를 만듬
   - mv ridi-new-entrant-web.zip deploy/ridi-new-entrant-web.zip # deploy 디렉터리로 ridi-new-entrant-web.zip 파일을 이동
 script:

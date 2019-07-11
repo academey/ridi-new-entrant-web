@@ -1,11 +1,12 @@
 import { loginCheck } from 'client/api';
 import {
-  actionCreators,
+  actionCreators, LOGIN_CHECK_FAILED,
   LOGIN_CHECK_START,
   LOGIN_CHECK_SUCCEEDED,
 } from 'client/store/auth';
 import { notify } from 'react-notify-toast';
 import { call, fork, put, select, takeLatest } from 'redux-saga/effects';
+import { IStoreAction } from 'client/store';
 
 function* loginCheckStartGenerator() {
   try {
@@ -21,14 +22,23 @@ function* loginCheckStartWatcher() {
 }
 
 function* loginCheckSucceededGenerator() {
-  yield call(notify.show, '로그인 성공!!!', 'success');
+  yield call(notify.show, '로그인 체크 성공', 'success');
 }
 
 function* loginCheckSucceededWatcher() {
   yield takeLatest(LOGIN_CHECK_SUCCEEDED, loginCheckSucceededGenerator);
 }
 
+function* loginCheckFailedGenerator(action: IStoreAction) {
+  yield call(notify.show, `로그인 체크 실패 ... ${action.error.message}`, 'error');
+}
+
+function* loginCheckFailedWatcher() {
+  yield takeLatest(LOGIN_CHECK_FAILED, loginCheckFailedGenerator);
+}
+
 export default function* rootSaga() {
   yield fork(loginCheckStartWatcher);
   yield fork(loginCheckSucceededWatcher);
+  yield fork(loginCheckFailedWatcher);
 }
