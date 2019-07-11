@@ -1,13 +1,12 @@
-import debug from 'debug';
-import * as http from 'http';
-
+import * as Debug from 'debug';
 import { config } from 'dotenv';
-
+import * as http from 'http';
 config();
+
 import App from './App';
 
-// TODO : 개발환경
-debug('ts-express:server');
+const debug = Debug.debug('express:server');
+debug('원하는 것만 출력할 수 있다.');
 
 const port = normalizePort(process.env.PORT || 8080);
 App.set('port', port);

@@ -1,6 +1,6 @@
 # Ridi Mini Library (Web Part)
 [![Build Status](https://travis-ci.org/academey/ridi-new-entrant-web.svg?branch=master)](https://travis-ci.org/academey/ridi-new-entrant-web)
-
+***
 [Demo Link][Demo Link] | [상세 기획안][상세 기획안] | [Asana Project][Asana Project]
 
 
@@ -8,10 +8,12 @@
 Server(Node), Client(React)를 typescript로 구현했습니다. 
 
 ## Prerequisites
+***
 - Docker
 - Docker-compose
 - Node (^10.16.0)
 ## Installation
+***
 ### 1. 환경 변수 설정 
 프로젝트 루트의 .env.example 파일을 자기 환경에 맞게 조정해 .env 파일로 변경합니다.
 
@@ -29,25 +31,39 @@ $ npm run compose-dev</code></pre>
 <pre><code> $ npm run compose-prod</code></pre>
 
 ## Examples
+***
 ![메인 페이지][메인 페이지]
 > 메인 페이지. 책 리스트를 조회하고 대여할 수 있다.
+
+&nbsp;
 
 ![회원 가입 페이지][회원 가입 페이지]
 > 회원 가입 페이지. JWT Token 방식으로 인증하며 토큰이 쿠키에 내려가고 해당 토큰을 이용해 유저 정보를 불러온다.
 
+&nbsp;
+
 ![대여하기][대여하기]
 > 로그인 한 상태에서 대여시간을 설정하고 대여하기 버튼을 누르면 책을 대여할 수 있다. 다른 유저가 빌린 책은 못 빌린다.
+
+&nbsp;
 
 ![반납하기][반납하기]
 > 로그인 한 유저가 대여한 책이 있다면 해당 책을 반납할 수 있다. 대여 종료 시각이 얼마나 남았는지 알려준다.
 
+&nbsp;
+
 ![연체 반납하기][연체 반납하기]
 > 대여한 책의 대여 종료 시각이 현재 시각보다 연체되었다면 빨리 반납하도록 유도하고, 다른 신규 책을 빌리지 못 한다.
+
+&nbsp;
 
 ![대여불가][대여불가]
 > 연체 반납했을 때, 연체된 시각의 두 배 만큼 대여 불가하게 만든다. 
 
+&nbsp;
+
 ## 사용한 기술 스펙
+***
 ### 1. Language / Platform / Framework
 #### Typescript
 [ridi/tslint-config][ridi/tslint-config]를 상속해서 개발했습니다. commit 시 lint-staged 를 통해 lint 와 prettier 가 실행되며 코드 컨벤션이 맞춰집니다. 
@@ -95,9 +111,56 @@ Git commit 이 오면 Travis 에서 빌드 & 테스트를 시작합니다. 성�
 #### Asana
 해당 [프로젝트][Asana Project]에서 관리했습니다.
 
+## Structure
+***
+```
+ridi-new-entrant-web/src
+├── client
+│   ├── api
+│   ├── components
+│   ├── containers
+│   │   └── Root
+│   ├── pages
+│   │   ├── auth
+│   │   │   ├── LoginPage
+│   │   │   └── RegisterPage
+│   │   └── resources
+│   │       └── book
+│   │           └── ListViewPage
+│   │               └── components
+│   ├── sagas
+│   ├── store
+│   └── utils
+├── database
+│   ├── config
+│   ├── migrations
+│   ├── models
+│   │   └── __mocks__
+│   └── seeders
+└── server
+    ├── routes
+    ├── service
+    ├── sql
+    └── utils
+```
 ## TODO
+***
 - docker-compose 로 nginx 무중단 배포 지원
 - Sequelize Pagination 기능 추가
+
+## REFERENCES
+***
+- [Express 공식 문서](https://expressjs.com/ko/guide/error-handling.html)
+- [Jest 공식 문서](https://jestjs.io/docs/en/mock-functions)
+- [Sequelize CLI를 사용하여 User API 만들기](https://velog.io/@jeff0720/Sequelize-CLI%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%98%EC%97%AC-%EA%B0%84%EB%8B%A8%ED%95%9C-User-API-%EB%A7%8C%EB%93%A4%EA%B8%B0-vdjpb8nl0k#6.-sequelize-cli-seed%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%B4-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%B6%94%EA%B0%80%ED%95%98%EA%B8%B0)
+- [Setup a REST API with Sequelize and Express.js](https://medium.com/infocentric/setup-a-rest-api-with-sequelize-and-express-js-fae06d08c0a7)
+- [Implementing JSON Web Tokens & Passport.js in a JavaScript Application with React](https://itnext.io/implementing-json-web-tokens-passport-js-in-a-javascript-application-with-react-b86b1f313436)
+- [[Node.js / JWT] Express.js 서버에서 JWT 기반 회원인증 시스템 구현하기](https://velopert.com/2448)
+- [JWT(JSON Web Token)로 로그인 REST API 만들기](https://www.a-mean-blog.com/ko/blog/Node-JS-API/_/JWT-JSON-Web-Token-%EB%A1%9C-%EB%A1%9C%EA%B7%B8%EC%9D%B8-REST-API-%EB%A7%8C%EB%93%A4%EA%B8%B0)
+- [Nodejs Authentication Using JWT and Refresh Token](https://codeforgeek.com/refresh-token-jwt-nodejs-authentication/)
+- [Docker Compose에서 컨테이너 startup 순서 컨트롤하기](https://jupiny.com/2016/11/13/conrtrol-container-startup-order-in-compose/)
+- [도커 컴포즈를 활용하여 완벽한 개발 환경 구성하기](https://www.44bits.io/ko/post/almost-perfect-development-environment-with-docker-and-docker-compose#%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B2%A0%EC%9D%B4%EC%8A%A4-%EC%BB%A8%ED%85%8C%EC%9D%B4%EB%84%88-%EC%8B%A4%ED%96%89)
+- [6) 스프링부트로 웹 서비스 출시하기 - 6. TravisCI & AWS CodeDeploy로 배포 자동화 구축하기](https://jojoldu.tistory.com/265)
 
 [Demo Link]: http://54.180.137.113
 [상세 기획안]: https://ridicorp.atlassian.net/wiki/spaces/DevSpace/pages/808716446

@@ -11,7 +11,7 @@
     "server": "nodemon --exec NODE_PATH=src ts-node src/server/index.ts",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "prod": "NODE_PATH=src NODE_ENV=production ts-node -T src/server/index.ts",
-    "compose-dev": "docker-compose up --build",
+    "compose-dev": "docker-compose up",
     "compose-prod": "docker-compose -f docker-compose.prod.yml up --build"
   },
   "husky": {
@@ -116,6 +116,7 @@
     "sequelize": "^6.0.0",
     "sequelize-typescript": "^1.0.0-beta.3",
     "styled-components": "^4.3.1",
+    "supports-color": "^7.0.0",
     "ts-loader": "^6.0.2",
     "tslint-react": "^4.0.0",
     "url-loader": "^2.0.0",
