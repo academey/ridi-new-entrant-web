@@ -25,7 +25,6 @@ services:
     restart: always
     build: . # Dockerfile이 위치한 경로
     ports:
-      - "3000:3000" # 연결할 포트
       - "8080:8080" # 연결할 포트
     environment: # 환경변수 설정
       - NODE_ENV=production

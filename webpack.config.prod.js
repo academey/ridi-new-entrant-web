@@ -42,7 +42,9 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: "./public/index.html"
     }),
-    new Dotenv(),
+    new Dotenv({
+      systemvars: true // load all the predefined 'process.env' variables which will trump anything local per dotenv specs.
+    }),
   ],
   node: {
     console: true,
