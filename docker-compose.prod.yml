@@ -30,6 +30,6 @@ services:
     environment: # 환경변수 설정
       - NODE_ENV=production
     env_file:
-      - .env.production
+      - .env
     depends_on:
       - composed-maria-db

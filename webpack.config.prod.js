@@ -43,7 +43,7 @@ module.exports = {
       template: "./public/index.html"
     }),
     new Dotenv({
-      path: './.env.production',
+      path: './.env',
     }),
   ],
   node: {

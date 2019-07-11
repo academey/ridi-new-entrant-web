@@ -12,7 +12,7 @@ export function isProduction() {
 
 export function getClientHost() {
   if (isProduction()) {
-    return 'http://54.180.137.113';
+    return `http://${process.env.PRODUCTION_IP}`;
   } else {
     return 'http://0.0.0.0:3000';
   }
@@ -20,7 +20,7 @@ export function getClientHost() {
 
 export function getServerHost() {
   if (isProduction()) {
-    return 'http://54.180.137.113:8080';
+    return `http://${process.env.PRODUCTION_IP}:8080`;
   } else {
     return 'http://0.0.0.0:8080';
   }
