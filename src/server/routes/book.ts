@@ -1,3 +1,4 @@
+import db from 'database/models';
 import { NextFunction, Request, Response, Router } from 'express';
 import asyncHandler from 'express-async-handler';
 import moment = require('moment');
@@ -156,29 +157,35 @@ export class BookRouter {
 
     const currentTime = moment();
     const diff = currentTime.diff(moment(bookReservation.endAt));
-    let createdReservationPenalty;
-    if (diff > 0) {
-      createdReservationPenalty = await reservationPenaltyService.create({
-        userId,
-        bookReservationId: bookReservation.id,
-        endAt: currentTime.add(diff * 2),
-      });
-    }
-    const destroyedCount = await bookReservationService.destroyById(
-      userId,
-      bookId,
-    );
+    db.sequelize.transaction(async (t) => {
+      let createdReservationPenalty;
+      if (diff > 0) {
+        createdReservationPenalty = await reservationPenaltyService.create({
+          userId,
+          bookReservationId: bookReservation.id,
+          endAt: currentTime.add(diff * 2),
+        }, {transaction: t});
+      }
 
-    if (destroyedCount) {
-      return makeSuccessResponse(
-        res,
-        SUCCESS_CODE,
-        { destroyedCount, createdReservationPenalty },
-        '반납 성공',
-      );
-    } else {
-      return makeFailResponse(res, SERVER_ERROR, '반납에 실패함');
-    }
+      const destroyedCount = await bookReservationService.destroyById(
+        userId,
+        bookId,
+        {transaction: t});
+
+      if (destroyedCount) {
+        return makeSuccessResponse(
+          res,
+          SUCCESS_CODE,
+          { destroyedCount, createdReservationPenalty },
+          '반납 성공',
+        );
+      } else {
+        return makeFailResponse(res, SERVER_ERROR, '반납에 실패함');
+      }
+    }).catch((error: Error) => {
+      return makeFailResponse(res, SERVER_ERROR, `반납에 실패함 ${error.message}`);
+      },
+    );
   }
 
   public async checkAvailableToBorrow(

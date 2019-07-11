@@ -36,7 +36,6 @@ export const mockAnotherPersonBorrowedBookReservation = {
   userId: mockAnotherPersonUserId,
 };
 
-
 export const mockDelayedBookReservation = {
   id: mockBookReservationId,
   ...mockDelayedBookReservationParam,
@@ -64,4 +63,8 @@ export const mockUserParam  = {
 export const mockUser = {
   id: mockUserId,
   ...mockUserParam,
+};
+
+export const mockTransactionOptions = {
+  transaction: {},
 };

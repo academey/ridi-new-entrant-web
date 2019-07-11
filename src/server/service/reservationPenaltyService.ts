@@ -1,14 +1,14 @@
 import { ReservationPenalty } from 'database/models/ReservationPenalty';
 import { Moment } from 'moment';
-import { Op } from 'sequelize';
+import { CreateOptions, Op } from 'sequelize';
 
 interface ICreateParams {
   userId: number;
   bookReservationId: number;
   endAt: Moment;
 }
-const create = (params: ICreateParams): Promise<ReservationPenalty> => {
-  return ReservationPenalty.create(params);
+const create = (params: ICreateParams, options: CreateOptions = null): Promise<ReservationPenalty> => {
+  return ReservationPenalty.create(params, options);
 };
 
 const findOneLaterThanTime = (

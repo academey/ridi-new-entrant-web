@@ -1,6 +1,6 @@
 import { BookReservation } from 'database/models/BookReservation';
 import { Moment } from 'moment';
-import { Op } from 'sequelize';
+import { Op, TruncateOptions } from 'sequelize';
 
 interface ICreateParams {
   userId: number;
@@ -34,12 +34,13 @@ const findByBookId = (bookId: number): Promise<BookReservation> => {
   });
 };
 
-const destroyById = (userId: number, bookId: number): Promise<number> => {
+const destroyById = (userId: number, bookId: number, options: TruncateOptions = null): Promise<number> => {
   return BookReservation.destroy({
     where: {
       userId,
       bookId,
     },
+    ...options,
   });
 };
 

@@ -15,6 +15,7 @@ import {
   mockAuthorParam,
 } from '../constants';
 
+jest.mock('database/models');
 jest.mock('server/service/authorService');
 
 const mockedAuthorService = authorService as jest.Mocked<typeof authorService>;

@@ -10,6 +10,7 @@ import {
   NOT_AUTHORIZED_ERROR,
   NOT_FOUND_ERROR,
   PARAM_VALIDATION_ERROR,
+  SERVER_ERROR,
   SUCCESS_CODE,
 } from 'server/routes/constants';
 import bookReservationService from 'server/service/bookReservationService';
@@ -27,10 +28,12 @@ import {
   mockDelayedBookReservation,
   mockDelayedBookReservationParam,
   mockReservationPenalty,
+  mockTransactionOptions,
   mockUser,
   mockUserId,
 } from '../constants';
 
+jest.mock('database/models');
 jest.mock('server/passport');
 jest.mock('server/service/bookReservationService');
 jest.mock('server/service/bookService');
@@ -263,9 +266,11 @@ describe('Test /api/books', () => {
       expect(mockedBookReservationService.findByBookId).toBeCalledWith(
         mockBookId,
       );
+      expect(mockedReservationPenaltyService.create).not.toHaveBeenCalled();
       expect(mockedBookReservationService.destroyById).toBeCalledWith(
         mockUserId,
         mockBookId,
+        mockTransactionOptions,
       );
     });
 
@@ -287,10 +292,35 @@ describe('Test /api/books', () => {
       );
       // TODO : endAt 을 동일하게 가져가려고 moment를 모킹하고 싶은데 모듈 자체를 모킹하니 에러가 난다.
       // expect(mockedReservationPenaltyService.create).toBeCalledWith(mockDelayedBookReservationParam);
+      expect(mockedReservationPenaltyService.create).toHaveBeenCalled();
       expect(mockedBookReservationService.destroyById).toBeCalledWith(
         mockUserId,
         mockBookId,
+        mockTransactionOptions,
       );
+    });
+
+    test('api book return transaction error', async () => {
+      mockedBookReservationService.findByBookId.mockResolvedValue(
+        mockDelayedBookReservation as any,
+      );
+      mockedReservationPenaltyService.create.mockImplementation(() => {
+        throw new Error();
+      });
+
+      await request(App)
+        .post(`/api/books/${mockBookId}/return`)
+        .send(mockBookReservationParam)
+        .expect(SERVER_ERROR);
+      expect(mockedBookReservationService.findByBookId).toBeCalledWith(
+        mockBookId,
+      );
+      console.log(
+        'mockedReservationPenaltyService.create is ',
+        mockedReservationPenaltyService.create.mock.calls,
+      );
+      expect(mockedReservationPenaltyService.create).toBeCalled();
+      expect(mockedBookReservationService.destroyById).not.toHaveBeenCalled();
     });
 
     test('api book return another person borrowed reservation', async () => {
