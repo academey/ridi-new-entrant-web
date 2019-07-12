@@ -30,5 +30,7 @@ services:
       - "8080:8080" # 연결할 포트
     environment: # 환경변수 설정
       - NODE_ENV=production
+    env_file:
+      - .env
     depends_on:
       - composed-maria-db
