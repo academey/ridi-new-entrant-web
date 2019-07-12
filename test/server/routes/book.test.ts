@@ -315,10 +315,6 @@ describe('Test /api/books', () => {
       expect(mockedBookReservationService.findByBookId).toBeCalledWith(
         mockBookId,
       );
-      console.log(
-        'mockedReservationPenaltyService.create is ',
-        mockedReservationPenaltyService.create.mock.calls,
-      );
       expect(mockedReservationPenaltyService.create).toBeCalled();
       expect(mockedBookReservationService.destroyById).not.toHaveBeenCalled();
     });

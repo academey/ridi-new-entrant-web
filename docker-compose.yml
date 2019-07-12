@@ -28,8 +28,6 @@ services:
       - "8080:8080" # 연결할 포트
     environment: # 환경변수 설정
       - NODE_ENV=development
-    env_file:
-      - .env
     volumes:
       - ./:/app/
       - /app/node_modules/ # /app/node_modules를 비워줌

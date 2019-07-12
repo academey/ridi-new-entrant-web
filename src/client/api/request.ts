@@ -47,7 +47,7 @@ export async function getAuthorizationHeader() {
   if (!accessToken) {
     throw new Error('로그인 하세여~');
   }
-  console.log('process.env is ', process.env);
+
   try {
     await verify(accessToken, process.env.JWT_SECRET);
   } catch (err) {
