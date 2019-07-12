@@ -24,13 +24,11 @@ class Root extends React.PureComponent<IRootProps> {
 
   public render() {
     return (
-      <div>
+      <ErrorBoundary>
         <Notifications />
         <Header />
-        <ErrorBoundary>
-          <Routing />
-        </ErrorBoundary>
-      </div>
+        <Routing />
+      </ErrorBoundary>
     );
   }
 }

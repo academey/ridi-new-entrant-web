@@ -6,7 +6,7 @@ config();
 import App from './App';
 
 const debug = Debug.debug('express:server');
-debug('원하는 것만 출력할 수 있다.');
+debug('원하는 것만 출력할 수 있다. ex) DEBUG=* npm run server');
 
 const port = normalizePort(process.env.PORT || 8080);
 App.set('port', port);

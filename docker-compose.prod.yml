@@ -28,6 +28,8 @@ services:
     build: . # Dockerfile이 위치한 경로
     ports:
       - "8080:8080" # 연결할 포트
+    volumes:
+      - /app/node_modules/ # /app/node_modules를 비워줌
     environment: # 환경변수 설정
       - NODE_ENV=production
     env_file:
