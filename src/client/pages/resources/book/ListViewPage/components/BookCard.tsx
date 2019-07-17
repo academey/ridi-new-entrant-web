@@ -53,6 +53,7 @@ class BookCard extends React.Component<IBookCardProps, IBookCardState> {
     const { borrowDuration } = this.state;
     const isUserReserveThisBook =
       user && book.bookReservation && book.bookReservation.userId === user.id;
+    // TODO: 리팩토링 & 서버로 로직 넘기기 필요
     if (isUserReserveThisBook) {
       const endAt = moment(book.bookReservation.endAt);
       const diff = moment().diff(endAt, 'seconds');

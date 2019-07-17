@@ -26,7 +26,7 @@ export async function requestApi(
 
     return result.data;
   } catch (error) {
-    throw new Error(error);
+    throw new Error(error.response.data.message);
   }
 }
 

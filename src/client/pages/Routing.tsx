@@ -8,18 +8,18 @@ const Routing: React.FC = () => {
     <Switch>
       <Route exact={true} path="/" component={BookPage} />
       <LoginCheckRoute
-        mustLoggedIn={false}
+        mustNotLoggedIn
         path="/auth/login"
         component={LoginPage}
       />
       <LoginCheckRoute
-        mustLoggedIn={false}
+        mustNotLoggedIn
         path="/auth/register"
         component={RegisterPage}
       />
       <Route path="/authors" component={BookPage} />
       <Route path="/books" component={BookPage} />
-      <LoginCheckRoute exact={true} path="/user/profile" component={BookPage} />
+      <LoginCheckRoute mustLoggedIn exact={true} path="/user/profile" component={BookPage} />
     </Switch>
   );
 };

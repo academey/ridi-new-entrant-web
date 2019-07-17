@@ -30,8 +30,8 @@ class BookPage extends Component<IBookPageProps, IBookPageState> {
   public componentDidMount(): void {
     const { getListDataStart, checkAvailableToBorrowStart } = this.props;
 
-    checkAvailableToBorrowStart();
     getListDataStart();
+    checkAvailableToBorrowStart();
   }
 
   public render() {

@@ -6,79 +6,83 @@ import {
   Strategy as JWTStrategy,
 } from 'passport-jwt';
 import { Strategy as LocalStrategy } from 'passport-local';
-
 import { NextFunction, Request, Response } from 'express';
 import { NOT_AUTHORIZED_ERROR } from 'server/routes/constants';
 import userService from 'server/service/userService';
 import { makeFailResponse } from 'server/utils/result';
+
 export const BCRYPT_SALT_ROUNDS = 12;
 
-passport.use(
-  new LocalStrategy(
-    {
-      usernameField: 'email',
-    },
-    async (email, password, cb) => {
-      let user;
-      try {
-        user = await userService.findByEmail(email);
-      } catch (err) {
-        return cb(err);
-      }
-
-      if (!user) {
-        return cb(null, false, { message: '해당 유저를 찾을 수 없습니다.' });
-      }
-
-      if (!user.authenticate(password)) {
-        return cb(null, false, { message: '비밀번호가 틀렸습니다.' });
-      }
-
-      return cb(null, user);
-    },
-  ),
-);
-
-passport.use(
-  'register',
-  new LocalStrategy(
-    {
-      usernameField: 'email',
-    },
-    async (email, password, cb) => {
-      let user;
-      try {
-        user = await userService.findByEmail(email);
-        if (user) {
-          return cb(null, false, { message: '해당 이메일은 누가 이미 썼음.' });
+const passportStrategy = () => {
+  passport.use(
+    new LocalStrategy(
+      {
+        usernameField: 'email',
+      },
+      async (email, password, cb) => {
+        let user;
+        try {
+          user = await userService.findByEmail(email);
+        } catch (err) {
+          return cb(err);
         }
-        const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
-        const createdUser = await userService.create(email, hashedPassword);
 
-        return cb(null, createdUser);
-      } catch (err) {
-        return cb(err);
-      }
-    },
-  ),
-);
+        if (!user) {
+          return cb(null, false, { message: '해당 유저를 찾을 수 없습니다.' });
+        }
 
-passport.use(
-  new JWTStrategy(
-    {
-      jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.JWT_SECRET,
-    },
-    async (jwtPayload, cb) => {
-      try {
-        const user = await userService.findById(jwtPayload.id);
+        if (!user.authenticate(password)) {
+          return cb(null, false, { message: '비밀번호가 틀렸습니다.' });
+        }
+
         return cb(null, user);
-      } catch (err) {
-        return cb(err);
-      }
-    },
-  ),
-);
+      },
+    ),
+  );
+
+  passport.use(
+    'register',
+    new LocalStrategy(
+      {
+        usernameField: 'email',
+      },
+      async (email, password, cb) => {
+        let user;
+        try {
+          user = await userService.findByEmail(email);
+          if (user) {
+            return cb(null, false, { message: '해당 이메일은 누가 이미 썼음.' });
+          }
+          const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
+          const createdUser = await userService.create(email, hashedPassword);
+
+          return cb(null, createdUser);
+        } catch (err) {
+          return cb(err);
+        }
+      },
+    ),
+  );
+
+  passport.use(
+    new JWTStrategy(
+      {
+        jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+        secretOrKey: process.env.JWT_SECRET,
+      },
+      async (jwtPayload, cb) => {
+        try {
+          const user = await userService.findById(jwtPayload.id);
+          return cb(null, user);
+        } catch (err) {
+          return cb(err);
+        }
+      },
+    ),
+  );
+}
+
+export default passportStrategy;
 
 export async function isAuthenticated(
   req: Request,

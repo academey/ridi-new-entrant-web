@@ -10,80 +10,64 @@ import {
 import authorService from 'server/service/authorService';
 import { makeFailResponse, makeSuccessResponse } from 'server/utils/result';
 
-class AuthorRouter {
-  constructor() {
-    if (AuthorRouter.instance) {
-      return AuthorRouter.instance;
-    }
-    AuthorRouter.instance = this;
-    this.router = Router();
-    this.init();
+const createOne = async (req: Request, res: Response, next: NextFunction) => {
+  assertAll(req, [presence('name'), presence('desc')]);
+  const { name, desc } = req.body;
+  const author = await authorService.create({name, desc});
+
+  return makeSuccessResponse(res, CREATED_CODE, author, '작가 생성 완료.');
+};
+
+const getAll = async (req: Request, res: Response, next: NextFunction) => {
+  const authors = await authorService.findAll();
+
+  return makeSuccessResponse(res, SUCCESS_CODE, authors, '다 가져옴');
+};
+
+const getOne = async (req: Request, res: Response, next: NextFunction) => {
+  assertAll(req, [isNumeric('id')]);
+  const authorId = parseInt(req.params.id, 10);
+  const author = await authorService.findById(authorId);
+
+  if (author) {
+    return makeSuccessResponse(res, SUCCESS_CODE, author, '하나 가져옴');
+  } else {
+    return makeFailResponse(
+      res,
+      NOT_FOUND_ERROR,
+      '그런 아이디를 가진 작가는 없음',
+    );
   }
+};
 
-  public static instance: AuthorRouter;
-  public router: Router;
-
-  public async createOne(req: Request, res: Response, next: NextFunction) {
-    assertAll(req, [presence('name'), presence('desc')]);
-    const { name, desc } = req.body;
-    const author = await authorService.create({name, desc});
-
-    return makeSuccessResponse(res, CREATED_CODE, author, '작가 생성 완료.');
-  }
-
-  public async getAll(req: Request, res: Response, next: NextFunction) {
-    const authors = await authorService.findAll();
-
-    return makeSuccessResponse(res, SUCCESS_CODE, authors, '다 가져옴');
-  }
-
-  public async getOne(req: Request, res: Response, next: NextFunction) {
-    assertAll(req, [isNumeric('id')]);
-    const authorId = parseInt(req.params.id, 10);
-    const author = await authorService.findById(authorId);
-
-    if (author) {
-      return makeSuccessResponse(res, SUCCESS_CODE, author, '하나 가져옴');
-    } else {
+const deleteOne = async (req: Request, res: Response, next: NextFunction) => {
+  assertAll(req, [isNumeric('id')]);
+  const authorId = parseInt(req.params.id, 10);
+  try {
+    const destroyedCount = await authorService.destroyById(authorId);
+    if (destroyedCount === 0) {
       return makeFailResponse(
         res,
         NOT_FOUND_ERROR,
         '그런 아이디를 가진 작가는 없음',
       );
     }
+    return makeSuccessResponse(
+      res,
+      SUCCESS_CODE,
+      { destroyedCount },
+      '제거 성공',
+    );
+  } catch (err) {
+    return makeFailResponse(res, SERVER_ERROR, '뭔가 서버 에러 남');
   }
+};
 
-  public async deleteOne(req: Request, res: Response, next: NextFunction) {
-    assertAll(req, [isNumeric('id')]);
-    const authorId = parseInt(req.params.id, 10);
-    try {
-      const destroyedCount = await authorService.destroyById(authorId);
-      if (destroyedCount === 0) {
-        return makeFailResponse(
-          res,
-          NOT_FOUND_ERROR,
-          '그런 아이디를 가진 작가는 없음',
-        );
-      }
-      return makeSuccessResponse(
-        res,
-        SUCCESS_CODE,
-        { destroyedCount },
-        '제거 성공',
-      );
-    } catch (err) {
-      return makeFailResponse(res, SERVER_ERROR, '뭔가 서버 에러 남');
-    }
-  }
+const router = Router();
 
-  public init() {
-    this.router.post('/', asyncHandler(this.createOne));
-    this.router.get('/', asyncHandler(this.getAll));
-    this.router.get('/:id', asyncHandler(this.getOne));
-    this.router.delete('/:id', asyncHandler(this.deleteOne));
-  }
-}
+router.post('/', asyncHandler(createOne));
+router.get('/', asyncHandler(getAll));
+router.get('/:id', asyncHandler(getOne));
+router.delete('/:id', asyncHandler(deleteOne));
 
-const authorRoutes = new AuthorRouter();
-
-export default authorRoutes.router;
+export default router;

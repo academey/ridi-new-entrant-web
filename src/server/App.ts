@@ -1,11 +1,9 @@
 import cookieParser from 'cookie-parser';
-import cors from 'cors';
+import cors, { CorsOptions } from 'cors';
+import models from 'database/models';
 import express, { NextFunction } from 'express';
 import logger from 'morgan';
 import { ValidationError } from 'property-validator';
-
-import './passport';
-
 import { PARAM_VALIDATION_ERROR, SERVER_ERROR } from 'server/routes/constants';
 import {
   getClientHost,
@@ -13,73 +11,75 @@ import {
   isTest,
 } from 'server/utils/envChecker';
 import { makeFailResponse } from 'server/utils/result';
-import models from '../database/models';
+import passportStrategy from './passport';
 import route from './routes';
 
-class App {
-  constructor() {
-    if (App.instance) {
-      return App.instance;
-    }
-    App.instance = this;
-    this.express = express();
-    this.hostBundle();
-    this.middleware();
-    this.routes();
-    this.errorHandling();
-    this.syncDB();
+const hostBundle = (app: express.Application) => {
+  if (isProduction()) {
+    app.use('/', express.static('build'));
   }
-  public static instance: App;
-  public express: express.Application;
+};
 
-  private hostBundle(): void {
-    if (isProduction()) {
-      this.express.use('/', express.static('build'));
-    }
-  }
+const middleware = (app: express.Application) => {
+  passportStrategy();
 
-  private middleware(): void {
-    if (isProduction()) {
-      this.express.use(logger('combined'));
-    } else {
-      this.express.use(logger('dev'));
-    }
-    this.express.use(cors({ credentials: true, origin: getClientHost() }));
-    this.express.use(express.json());
-    this.express.use(express.urlencoded({ extended: true }));
-    this.express.use(cookieParser());
-  }
-
-  private routes(): void {
-    route(this.express);
-  }
-
-  private errorHandling(): void {
-    this.express.use((err: Error, req: any, res: any, next: NextFunction) => {
-      if (!err) {
-        return next(err);
-      }
-
-      if (err instanceof ValidationError) {
-        return makeFailResponse(res, PARAM_VALIDATION_ERROR, err.message);
+  // TODO: 화이트리스트로 필터링해서 오리진을 관리하는게 더 낫다.
+  const whitelist = ['http://0.0.0.0:3000', 'http://0.0.0.0', 'http://54.180.137.113'];
+  app.use(cors({
+    credentials: true,
+    origin: (origin, callback) => {
+      if (whitelist.indexOf(origin) !== -1 || !origin) {
+        callback(null, true);
       } else {
-        return makeFailResponse(res, SERVER_ERROR, err.message);
+        callback(new Error('Not allowed by CORS'));
       }
-    });
+    },
+  }));
+  if (isProduction()) {
+    app.use(logger('combined'));
+  } else {
+    app.use(logger('dev'));
   }
+  // app.use(cors({ credentials: true, origin: getClientHost() }));
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(cookieParser());
+};
 
-  public async syncDB() {
-    try {
-      if (isTest() || isProduction()) {
-        return;
-      }
-      await models.sequelize.sync();
-      console.log('동기화 성공');
-    } catch (error) {
-      console.log('연결 실패');
-      console.log(error);
+const errorHandling = (app: express.Application) => {
+  app.use((err: Error, req: any, res: any, next: NextFunction) => {
+    if (!err) {
+      return next(err);
     }
-  }
-}
 
-export default new App().express;
+    if (err instanceof ValidationError) {
+      return makeFailResponse(res, PARAM_VALIDATION_ERROR, err.message);
+    } else {
+      console.log(err);
+      return makeFailResponse(res, SERVER_ERROR, err.message);
+    }
+  });
+};
+
+const syncDB = async () => {
+  try {
+    if (isTest() || isProduction()) {
+      return;
+    }
+    await models.sequelize.sync();
+    console.log('동기화 성공');
+  } catch (error) {
+    console.log('연결 실패');
+    console.log(error);
+  }
+};
+
+const server: express.Application = express();
+
+hostBundle(server);
+middleware(server);
+route(server);
+errorHandling(server);
+syncDB();
+
+export default server;

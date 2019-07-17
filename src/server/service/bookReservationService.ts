@@ -1,6 +1,10 @@
+import models from 'database/models';
 import { BookReservation } from 'database/models/BookReservation';
 import { Moment } from 'moment';
 import { Op, TruncateOptions } from 'sequelize';
+
+const PENALTY_LATIO = 2;
+const sequelize = models.Sequelize;
 
 interface ICreateParams {
   userId: number;
@@ -11,25 +15,19 @@ const create = (params: ICreateParams): Promise<BookReservation> => {
   return BookReservation.create(params);
 };
 
-const findOnePrevThanTime = (
-  userId: number,
-  time: Moment,
-): Promise<BookReservation> => {
-  return BookReservation.findOne({
-    where: {
-      userId,
-      endAt: {
-        [Op.lt]: time, // endAt < time Query
-      },
-    },
-    order: [['end_at', 'DESC']],
-  });
-};
-
 const findByBookId = (bookId: number): Promise<BookReservation> => {
   return BookReservation.findOne({
     where: {
       bookId,
+    },
+  });
+};
+
+const findByBookIdAndUserId = (bookId: number, userId: number): Promise<BookReservation> => {
+  return BookReservation.findOne({
+    where: {
+      bookId,
+      userId,
     },
   });
 };
@@ -44,9 +42,67 @@ const destroyById = (userId: number, bookId: number, options: TruncateOptions = 
   });
 };
 
+const findLateReturnedOne = (userId: number): Promise<BookReservation> => {
+  return BookReservation.findOne({
+    attributes: {
+      include: [
+        [sequelize.fn('ADDTIME',
+          sequelize.col('deleted_at'),
+          sequelize.literal(`TIMEDIFF(deleted_at, end_at) * ${PENALTY_LATIO}`),
+        ), 'penalty_end_at']],
+    },
+    paranoid: false,
+    where: sequelize.and(sequelize.where(
+      sequelize.fn('ADDTIME',
+        sequelize.col('deleted_at'),
+        sequelize.literal(`TIMEDIFF(deleted_at, end_at) * ${PENALTY_LATIO}`),
+      ), '>', sequelize.fn('NOW')),
+      {
+        deletedAt: {
+          [Op.ne]: null,
+        },
+      },
+      {
+        userId,
+      },
+    ),
+    order: [
+      [
+        sequelize.fn('ADDTIME',
+        sequelize.col('deleted_at'),
+        sequelize.literal(`TIMEDIFF(deleted_at, end_at) * ${PENALTY_LATIO}`),
+        ), 'DESC',
+      ],
+    ],
+  });
+};
+
+const findDelayedOne = (userId: number): Promise<BookReservation> => {
+  return BookReservation.findOne({
+    attributes: {
+      include: [
+        [sequelize.fn('ADDTIME',
+          sequelize.fn('NOW'),
+          sequelize.literal(`TIMEDIFF(NOW(), end_at) * ${PENALTY_LATIO}`),
+        ), 'penalty_end_at']],
+    },
+    where: {
+      endAt: {
+        [Op.lt]: new Date(),
+      },
+      userId,
+    },
+    order: [
+      ['end_at', 'ASC'],
+    ],
+  });
+};
+
 export default {
   create,
-  findOnePrevThanTime,
   findByBookId,
+  findByBookIdAndUserId,
   destroyById,
+  findLateReturnedOne,
+  findDelayedOne,
 };

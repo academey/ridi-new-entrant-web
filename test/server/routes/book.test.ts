@@ -1,24 +1,19 @@
 import { Book } from 'database/models/Book';
 import { NextFunction, Request, Response } from 'express';
-import moment = require('moment');
 import App from 'server/App';
 import { isAuthenticated } from 'server/passport';
 import {
   CLIENT_ERROR,
   CONFLICT_ERROR,
   CREATED_CODE,
-  NOT_AUTHORIZED_ERROR,
   NOT_FOUND_ERROR,
   PARAM_VALIDATION_ERROR,
-  SERVER_ERROR,
   SUCCESS_CODE,
 } from 'server/routes/constants';
 import bookReservationService from 'server/service/bookReservationService';
 import bookService from 'server/service/bookService';
-import reservationPenaltyService from 'server/service/reservationPenaltyService';
 import request from 'supertest';
 import {
-  mockAnotherPersonBorrowedBookReservation,
   mockBook,
   mockBookId,
   mockBookList,
@@ -27,8 +22,9 @@ import {
   mockBookReservationParam,
   mockDelayedBookReservation,
   mockDelayedBookReservationParam,
-  mockReservationPenalty,
-  mockTransactionOptions,
+  mockLateReturnedBookReservation,
+  mockLaterPenaltyEndAt,
+  mockPenaltyEndAt,
   mockUser,
   mockUserId,
 } from '../constants';
@@ -37,15 +33,13 @@ jest.mock('database/models');
 jest.mock('server/passport');
 jest.mock('server/service/bookReservationService');
 jest.mock('server/service/bookService');
-jest.mock('server/service/reservationPenaltyService');
+
+// TODO: 인증이 필요한 애들은 따로 테스트해봐야 될 것 같다.
 
 const mockIsAuthenticated = isAuthenticated as jest.Mock;
 const mockedBookService = bookService as jest.Mocked<typeof bookService>;
 const mockedBookReservationService = bookReservationService as jest.Mocked<
   typeof bookReservationService
->;
-const mockedReservationPenaltyService = reservationPenaltyService as jest.Mocked<
-  typeof reservationPenaltyService
 >;
 
 describe('Test /api/books', () => {
@@ -154,10 +148,8 @@ describe('Test /api/books', () => {
     test('api book borrow', async () => {
       mockedBookService.findById.mockResolvedValue(mockBook as Book);
       mockedBookReservationService.findByBookId.mockResolvedValue(null);
-      mockedReservationPenaltyService.findOneLaterThanTime.mockResolvedValue(
-        null,
-      );
-      mockedBookReservationService.findOnePrevThanTime.mockResolvedValue(null);
+      mockedBookReservationService.findLateReturnedOne.mockResolvedValue(null);
+      mockedBookReservationService.findDelayedOne.mockResolvedValue(null);
       mockedBookReservationService.create.mockResolvedValue(
         mockBookReservation as any,
       );
@@ -171,12 +163,11 @@ describe('Test /api/books', () => {
       expect(mockedBookReservationService.findByBookId).toBeCalledWith(
         mockBookId,
       );
-      expect(
-        mockedReservationPenaltyService.findOneLaterThanTime,
-      ).toBeCalledWith(mockUserId, expect.any(moment));
-      expect(mockedBookReservationService.findOnePrevThanTime).toBeCalledWith(
+      expect(mockedBookReservationService.findLateReturnedOne).toBeCalledWith(
         mockUserId,
-        expect.any(moment),
+      );
+      expect(mockedBookReservationService.findDelayedOne).toBeCalledWith(
+        mockUserId,
       );
       expect(mockedBookReservationService.create).toBeCalledWith(
         mockBookReservationParam,
@@ -211,11 +202,9 @@ describe('Test /api/books', () => {
     test('api book borrow Book penalty or delayedReservation exists', async () => {
       mockedBookService.findById.mockResolvedValue(mockBook as Book);
       mockedBookReservationService.findByBookId.mockResolvedValue(null);
-      mockedReservationPenaltyService.findOneLaterThanTime.mockResolvedValue(
-        null,
-      );
-      mockedBookReservationService.findOnePrevThanTime.mockResolvedValue(
-        mockReservationPenalty as any,
+      mockedBookReservationService.findLateReturnedOne.mockResolvedValue(null);
+      mockedBookReservationService.findDelayedOne.mockResolvedValue(
+        mockDelayedBookReservation as any,
       );
 
       await request(App)
@@ -226,12 +215,11 @@ describe('Test /api/books', () => {
       expect(mockedBookReservationService.findByBookId).toBeCalledWith(
         mockBookId,
       );
-      expect(
-        mockedReservationPenaltyService.findOneLaterThanTime,
-      ).toBeCalledWith(mockUserId, expect.any(moment));
-      expect(mockedBookReservationService.findOnePrevThanTime).toBeCalledWith(
+      expect(mockedBookReservationService.findLateReturnedOne).toBeCalledWith(
         mockUserId,
-        expect.any(moment),
+      );
+      expect(mockedBookReservationService.findDelayedOne).toBeCalledWith(
+        mockUserId,
       );
     });
 
@@ -252,8 +240,8 @@ describe('Test /api/books', () => {
   });
 
   describe('api book return', () => {
-    test('api book not delayed return', async () => {
-      mockedBookReservationService.findByBookId.mockResolvedValue(
+    test('api book return', async () => {
+      mockedBookReservationService.findByBookIdAndUserId.mockResolvedValue(
         mockBookReservation as any,
       );
       mockedBookReservationService.destroyById.mockResolvedValue(1);
@@ -263,86 +251,28 @@ describe('Test /api/books', () => {
         .send(mockBookReservationParam)
         .expect(SUCCESS_CODE);
       expect(response.body.result).toEqual({ destroyedCount: 1 });
-      expect(mockedBookReservationService.findByBookId).toBeCalledWith(
+      expect(mockedBookReservationService.findByBookIdAndUserId).toBeCalledWith(
         mockBookId,
+        mockUserId,
       );
-      expect(mockedReservationPenaltyService.create).not.toHaveBeenCalled();
       expect(mockedBookReservationService.destroyById).toBeCalledWith(
         mockUserId,
         mockBookId,
-        mockTransactionOptions,
       );
-    });
-
-    test('api book delayed return', async () => {
-      mockedBookReservationService.findByBookId.mockResolvedValue(
-        mockDelayedBookReservation as any,
-      );
-      mockedReservationPenaltyService.create.mockResolvedValue(
-        mockDelayedBookReservation as any,
-      );
-      mockedBookReservationService.destroyById.mockResolvedValue(1);
-
-      await request(App)
-        .post(`/api/books/${mockBookId}/return`)
-        .send(mockDelayedBookReservationParam)
-        .expect(SUCCESS_CODE);
-      expect(mockedBookReservationService.findByBookId).toBeCalledWith(
-        mockBookId,
-      );
-      // TODO : endAt 을 동일하게 가져가려고 moment를 모킹하고 싶은데 모듈 자체를 모킹하니 에러가 난다.
-      // expect(mockedReservationPenaltyService.create).toBeCalledWith(mockDelayedBookReservationParam);
-      expect(mockedReservationPenaltyService.create).toHaveBeenCalled();
-      expect(mockedBookReservationService.destroyById).toBeCalledWith(
-        mockUserId,
-        mockBookId,
-        mockTransactionOptions,
-      );
-    });
-
-    test('api book return transaction error', async () => {
-      mockedBookReservationService.findByBookId.mockResolvedValue(
-        mockDelayedBookReservation as any,
-      );
-      mockedReservationPenaltyService.create.mockImplementation(() => {
-        throw new Error();
-      });
-
-      await request(App)
-        .post(`/api/books/${mockBookId}/return`)
-        .send(mockBookReservationParam)
-        .expect(SERVER_ERROR);
-      expect(mockedBookReservationService.findByBookId).toBeCalledWith(
-        mockBookId,
-      );
-      expect(mockedReservationPenaltyService.create).toBeCalled();
-      expect(mockedBookReservationService.destroyById).not.toHaveBeenCalled();
-    });
-
-    test('api book return another person borrowed reservation', async () => {
-      mockedBookReservationService.findByBookId.mockResolvedValue(
-        mockAnotherPersonBorrowedBookReservation as any,
-      );
-
-      await request(App)
-        .post(`/api/books/${mockBookId}/return`)
-        .send(mockBookReservationParam)
-        .expect(NOT_AUTHORIZED_ERROR);
-      expect(mockedBookReservationService.findByBookId).toBeCalledWith(
-        mockBookId,
-      );
-      expect(mockedBookReservationService.destroyById).not.toHaveBeenCalled();
     });
 
     test('api book return Not found', async () => {
-      mockedBookReservationService.findByBookId.mockResolvedValue(null);
+      mockedBookReservationService.findByBookIdAndUserId.mockResolvedValue(
+        null,
+      );
 
       await request(App)
         .post(`/api/books/${mockBookId}/return`)
         .send(mockBookReservationParam)
         .expect(NOT_FOUND_ERROR);
-      expect(mockedBookReservationService.findByBookId).toBeCalledWith(
+      expect(mockedBookReservationService.findByBookIdAndUserId).toBeCalledWith(
         mockBookId,
+        mockUserId,
       );
     });
 
@@ -355,50 +285,51 @@ describe('Test /api/books', () => {
 
   describe('api book checkAvailableToBorrow', () => {
     test('api book checkAvailableToBorrow availableToBorrow True', async () => {
-      mockedReservationPenaltyService.findOneLaterThanTime.mockResolvedValue(
-        null,
-      );
-      mockedBookReservationService.findOnePrevThanTime.mockResolvedValue(null);
+      mockedBookReservationService.findLateReturnedOne.mockResolvedValue(null);
+      mockedBookReservationService.findDelayedOne.mockResolvedValue(null);
 
       const response = await request(App)
         .post(`/api/books/check_available_to_borrow`)
         .send(mockBookReservationParam)
         .expect(SUCCESS_CODE);
       expect(response.body.result.availableToBorrow).toBeTruthy();
-      expect(
-        mockedReservationPenaltyService.findOneLaterThanTime,
-      ).toBeCalledWith(mockUserId, expect.any(moment));
-      expect(mockedBookReservationService.findOnePrevThanTime).toBeCalledWith(
+      expect(mockedBookReservationService.findLateReturnedOne).toBeCalledWith(
         mockUserId,
-        expect.any(moment),
+      );
+      expect(mockedBookReservationService.findDelayedOne).toBeCalledWith(
+        mockUserId,
       );
     });
 
-    test('api book delayed checkAvailableToBorrow availableToBorrow false due to reservationPenalty', async () => {
-      mockedReservationPenaltyService.findOneLaterThanTime.mockResolvedValue(
-        mockReservationPenalty as any,
-      );
-      mockedBookReservationService.findOnePrevThanTime.mockResolvedValue(null);
+    test(
+      'api book delayed checkAvailableToBorrow availableToBorrow false ' +
+        'due to lateReturnedBookReservation',
+      async () => {
+        mockedBookReservationService.findLateReturnedOne.mockResolvedValue(
+          mockLateReturnedBookReservation as any,
+        );
+        mockedBookReservationService.findDelayedOne.mockResolvedValue(null);
 
-      const response = await request(App)
-        .post(`/api/books/check_available_to_borrow`)
-        .send(mockDelayedBookReservationParam)
-        .expect(SUCCESS_CODE);
-      expect(response.body.result.availableToBorrow).toBeFalsy();
-      expect(
-        mockedReservationPenaltyService.findOneLaterThanTime,
-      ).toBeCalledWith(mockUserId, expect.any(moment));
-      expect(mockedBookReservationService.findOnePrevThanTime).toBeCalledWith(
-        mockUserId,
-        expect.any(moment),
-      );
-    });
+        const response = await request(App)
+          .post(`/api/books/check_available_to_borrow`)
+          .send(mockDelayedBookReservationParam)
+          .expect(SUCCESS_CODE);
+        expect(response.body.result.availableToBorrow).toBeFalsy();
+        expect(response.body.result.reservationPenaltyEndAt).toEqual(
+          mockLaterPenaltyEndAt,
+        );
+        expect(mockedBookReservationService.findLateReturnedOne).toBeCalledWith(
+          mockUserId,
+        );
+        expect(mockedBookReservationService.findDelayedOne).toBeCalledWith(
+          mockUserId,
+        );
+      },
+    );
 
     test('api book delayed checkAvailableToBorrow availableToBorrow false due to delayedBookReservation', async () => {
-      mockedReservationPenaltyService.findOneLaterThanTime.mockResolvedValue(
-        null,
-      );
-      mockedBookReservationService.findOnePrevThanTime.mockResolvedValue(
+      mockedBookReservationService.findLateReturnedOne.mockResolvedValue(null);
+      mockedBookReservationService.findDelayedOne.mockResolvedValue(
         mockDelayedBookReservation as any,
       );
 
@@ -407,20 +338,22 @@ describe('Test /api/books', () => {
         .send(mockDelayedBookReservationParam)
         .expect(SUCCESS_CODE);
       expect(response.body.result.availableToBorrow).toBeFalsy();
-      expect(
-        mockedReservationPenaltyService.findOneLaterThanTime,
-      ).toBeCalledWith(mockUserId, expect.any(moment));
-      expect(mockedBookReservationService.findOnePrevThanTime).toBeCalledWith(
+      expect(response.body.result.reservationPenaltyEndAt).toEqual(
+        mockPenaltyEndAt,
+      );
+      expect(mockedBookReservationService.findLateReturnedOne).toBeCalledWith(
         mockUserId,
-        expect.any(moment),
+      );
+      expect(mockedBookReservationService.findDelayedOne).toBeCalledWith(
+        mockUserId,
       );
     });
 
     test('api book delayed checkAvailableToBorrow availableToBorrow false due to both of them', async () => {
-      mockedReservationPenaltyService.findOneLaterThanTime.mockResolvedValue(
-        mockReservationPenalty as any,
+      mockedBookReservationService.findLateReturnedOne.mockResolvedValue(
+        mockLateReturnedBookReservation as any,
       );
-      mockedBookReservationService.findOnePrevThanTime.mockResolvedValue(
+      mockedBookReservationService.findDelayedOne.mockResolvedValue(
         mockDelayedBookReservation as any,
       );
 
@@ -429,12 +362,14 @@ describe('Test /api/books', () => {
         .send(mockDelayedBookReservationParam)
         .expect(SUCCESS_CODE);
       expect(response.body.result.availableToBorrow).toBeFalsy();
-      expect(
-        mockedReservationPenaltyService.findOneLaterThanTime,
-      ).toBeCalledWith(mockUserId, expect.any(moment));
-      expect(mockedBookReservationService.findOnePrevThanTime).toBeCalledWith(
+      expect(response.body.result.reservationPenaltyEndAt).toEqual(
+        mockLaterPenaltyEndAt,
+      );
+      expect(mockedBookReservationService.findLateReturnedOne).toBeCalledWith(
         mockUserId,
-        expect.any(moment),
+      );
+      expect(mockedBookReservationService.findDelayedOne).toBeCalledWith(
+        mockUserId,
       );
     });
   });

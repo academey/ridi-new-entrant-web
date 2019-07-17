@@ -4,7 +4,6 @@ import { Author } from './Author';
 import { AuthorBook } from './AuthorBook';
 import { Book } from './Book';
 import { BookReservation } from './BookReservation';
-import { ReservationPenalty } from './ReservationPenalty';
 import { User } from './User';
 
 const env: string = process.env.NODE_ENV || 'development';
@@ -17,7 +16,6 @@ sequelize.addModels([
   Author,
   User,
   BookReservation,
-  ReservationPenalty,
 ]);
 
 const db = {

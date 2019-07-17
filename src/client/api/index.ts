@@ -1,5 +1,4 @@
 import { requestApi, requestApiWithAuthentication } from 'client/api/request';
-import { getAccessToken } from 'client/utils/storage';
 import moment from 'moment';
 import { IApiResponse } from 'server/utils/result';
 
