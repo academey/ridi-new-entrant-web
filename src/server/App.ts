@@ -6,7 +6,6 @@ import logger from 'morgan';
 import { ValidationError } from 'property-validator';
 import { PARAM_VALIDATION_ERROR, SERVER_ERROR } from 'server/routes/constants';
 import {
-  getClientHost,
   isProduction,
   isTest,
 } from 'server/utils/envChecker';
@@ -22,8 +21,19 @@ const hostBundle = (app: express.Application) => {
 
 const middleware = (app: express.Application) => {
   passportStrategy();
+  corsSetting(app);
 
-  // TODO: 화이트리스트로 필터링해서 오리진을 관리하는게 더 낫다.
+  if (isProduction()) {
+    app.use(logger('combined'));
+  } else {
+    app.use(logger('dev'));
+  }
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(cookieParser());
+};
+
+const corsSetting = (app: express.Application) => {
   const whitelist = ['http://0.0.0.0:3000', 'http://0.0.0.0', 'http://54.180.137.113'];
   app.use(cors({
     credentials: true,
@@ -35,15 +45,6 @@ const middleware = (app: express.Application) => {
       }
     },
   }));
-  if (isProduction()) {
-    app.use(logger('combined'));
-  } else {
-    app.use(logger('dev'));
-  }
-  // app.use(cors({ credentials: true, origin: getClientHost() }));
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
-  app.use(cookieParser());
 };
 
 const errorHandling = (app: express.Application) => {

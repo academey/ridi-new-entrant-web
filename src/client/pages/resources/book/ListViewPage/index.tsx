@@ -19,7 +19,7 @@ interface IBookPageProps {
   reservationPenaltyEndAt: string;
   getListDataStart: () => void;
   checkAvailableToBorrowStart: () => void;
-  borrowStart: (bookId: number, borrowDuration: string) => void;
+  borrowStart: (bookId: number, duration: string) => void;
   returnStart: (bookId: number) => void;
 }
 interface IBookPageState {
@@ -69,8 +69,8 @@ const mapStateToProps = ({ book, auth }: IStoreState) => ({
 
 const mapDispatchProps = (dispatch: Dispatch) => ({
   getListDataStart: () => dispatch(actionCreators.getListDataStart()),
-  borrowStart: (bookId: number, borrowDuration: string) =>
-    dispatch(actionCreators.borrowStart(bookId, borrowDuration)),
+  borrowStart: (bookId: number, duration: string) =>
+    dispatch(actionCreators.borrowStart(bookId, duration)),
   returnStart: (bookId: number) => dispatch(actionCreators.returnStart(bookId)),
   checkAvailableToBorrowStart: () =>
     dispatch(actionCreators.checkAvailableToBorrowStart()),

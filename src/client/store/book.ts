@@ -82,12 +82,12 @@ function getListDataFailed(error: Error) {
   };
 }
 
-function borrowStart(bookId: number, borrowDuration: string) {
+function borrowStart(bookId: number, duration: string) {
   return {
     type: BOOK_BORROW_START,
     data: {
       bookId,
-      borrowDuration,
+      duration,
     },
   };
 }

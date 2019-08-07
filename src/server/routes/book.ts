@@ -70,11 +70,12 @@ const deleteOne = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const borrow = async (req: Request, res: Response, next: NextFunction) => {
-  // TODO : 요것 endAt도 시간 계산 여기서 하자.
-  assertAll(req, [isNumeric('id'), isDate('endAt')]);
+  assertAll(req, [isNumeric('duration'), presence('unit')]);
   const bookId = parseInt(req.params.id, 10);
   const userId = req.user.id;
-  const { endAt } = req.body;
+  const { duration, unit } = req.body;
+  const endAt = moment().add(duration, unit);
+
   const book = await bookService.findById(bookId);
   if (!book) {
     return makeFailResponse(

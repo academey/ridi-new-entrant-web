@@ -38,8 +38,8 @@ function* bookGetListDataStartWatcher() {
 
 function* bookBorrowStartGenerator(action: IStoreAction) {
   try {
-    const { bookId, borrowDuration } = action.data;
-    const { result, message } = yield call(borrowBook, bookId, borrowDuration);
+    const { bookId, duration } = action.data;
+    const { result, message } = yield call(borrowBook, bookId, duration);
 
     yield put(actionCreators.borrowSucceeded(result, message));
   } catch (error) {

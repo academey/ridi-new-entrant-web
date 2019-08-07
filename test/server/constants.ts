@@ -4,7 +4,6 @@ export const mockBookId = 1;
 export const mockUserId = 2;
 export const mockBookReservationId = 3;
 export const mockAuthorId = 4;
-export const mockEndAt = '2019-09-08';
 export const mockPenaltyEndAt = '2019-09-18';
 export const mockLaterPenaltyEndAt = '2019-09-21';
 
@@ -18,20 +17,8 @@ export const mockBookList = [mockBook, mockBook, mockBook];
 export const mockBookReservationParam = {
   userId: mockUserId,
   bookId: mockBookId,
-  endAt: mockEndAt,
-};
-
-export const mockDelayedBookReservationParam = {
-  userId: mockUserId,
-  bookReservationId: mockBookReservationId,
-  endAt: moment().add(-3, 'days'),
-};
-
-export const mockLateReturnedBookReservationParam = {
-  userId: mockUserId,
-  bookReservationId: mockBookReservationId,
-  endAt: moment().add(-3, 'days'),
-  deletedAt: moment(),
+  duration: 3,
+  unit: 'm',
 };
 
 export const mockBookReservation = {
@@ -39,17 +26,28 @@ export const mockBookReservation = {
   ...mockBookReservationParam,
 };
 
+export const mockBookReservationCreateParam = {
+  userId: mockUserId,
+  bookId: mockBookId,
+  endAt: expect.any(moment),
+};
+
 export const mockDelayedBookReservation = {
-  ...mockDelayedBookReservationParam,
   id: mockBookReservationId,
+  userId: mockUserId,
+  bookReservationId: mockBookReservationId,
+  endAt: moment().add(-3, 'days'),
   get: () => {
     return mockPenaltyEndAt;
   },
 };
 
 export const mockLateReturnedBookReservation = {
-  ...mockLateReturnedBookReservationParam,
   id : mockBookReservationId,
+  userId: mockUserId,
+  bookReservationId: mockBookReservationId,
+  endAt: moment().add(-3, 'days'),
+  deletedAt: moment(),
   get: () => {
     return mockLaterPenaltyEndAt;
   },

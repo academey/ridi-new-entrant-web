@@ -1,5 +1,4 @@
 import { requestApi, requestApiWithAuthentication } from 'client/api/request';
-import moment from 'moment';
 import { IApiResponse } from 'server/utils/result';
 
 export async function requestBooks(): Promise<IApiResponse> {
@@ -15,15 +14,15 @@ export async function requestBook(id: string): Promise<IApiResponse> {
 
 export async function borrowBook(
   id: string,
-  borrowDuration: string,
+  duration: string,
 ): Promise<IApiResponse> {
-  const endAt = moment().add(borrowDuration, 'm');
   const data: IApiResponse = await requestApiWithAuthentication(
     `books/${id}/borrow`,
     {
       method: 'POST',
       data: {
-        endAt,
+        duration,
+        unit: 'm',
       },
     },
   );

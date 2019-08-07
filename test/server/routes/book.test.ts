@@ -19,9 +19,9 @@ import {
   mockBookList,
   mockBookParam,
   mockBookReservation,
+  mockBookReservationCreateParam,
   mockBookReservationParam,
   mockDelayedBookReservation,
-  mockDelayedBookReservationParam,
   mockLateReturnedBookReservation,
   mockLaterPenaltyEndAt,
   mockPenaltyEndAt,
@@ -170,7 +170,7 @@ describe('Test /api/books', () => {
         mockUserId,
       );
       expect(mockedBookReservationService.create).toBeCalledWith(
-        mockBookReservationParam,
+        mockBookReservationCreateParam,
       );
     });
 
@@ -290,7 +290,6 @@ describe('Test /api/books', () => {
 
       const response = await request(App)
         .post(`/api/books/check_available_to_borrow`)
-        .send(mockBookReservationParam)
         .expect(SUCCESS_CODE);
       expect(response.body.result.availableToBorrow).toBeTruthy();
       expect(mockedBookReservationService.findLateReturnedOne).toBeCalledWith(
@@ -312,7 +311,6 @@ describe('Test /api/books', () => {
 
         const response = await request(App)
           .post(`/api/books/check_available_to_borrow`)
-          .send(mockDelayedBookReservationParam)
           .expect(SUCCESS_CODE);
         expect(response.body.result.availableToBorrow).toBeFalsy();
         expect(response.body.result.reservationPenaltyEndAt).toEqual(
@@ -335,7 +333,6 @@ describe('Test /api/books', () => {
 
       const response = await request(App)
         .post(`/api/books/check_available_to_borrow`)
-        .send(mockDelayedBookReservationParam)
         .expect(SUCCESS_CODE);
       expect(response.body.result.availableToBorrow).toBeFalsy();
       expect(response.body.result.reservationPenaltyEndAt).toEqual(
@@ -359,7 +356,6 @@ describe('Test /api/books', () => {
 
       const response = await request(App)
         .post(`/api/books/check_available_to_borrow`)
-        .send(mockDelayedBookReservationParam)
         .expect(SUCCESS_CODE);
       expect(response.body.result.availableToBorrow).toBeFalsy();
       expect(response.body.result.reservationPenaltyEndAt).toEqual(

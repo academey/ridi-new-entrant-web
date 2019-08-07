@@ -25,11 +25,11 @@ export class Author extends Model<Author> {
 
   @CreatedAt
   @Column
-  public created_at!: Date;
+  public createdAt!: Date;
 
   @UpdatedAt
   @Column
-  public updated_at!: Date;
+  public updatedAt!: Date;
 
   @BelongsToMany(() => Book, () => AuthorBook)
   public books?: Book[];

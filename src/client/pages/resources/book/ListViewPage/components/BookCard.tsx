@@ -17,14 +17,14 @@ import styled from 'styled-components';
 interface IBookCardProps {
   user: User;
   book: Book;
-  borrowStart: (bookId: number, borrowDuration: string) => void;
+  borrowStart: (bookId: number, duration: string) => void;
   returnStart: (bookId: number) => void;
   availableToBorrow: boolean;
   reservationPenaltyEndAt: string;
 }
 
 interface IBookCardState {
-  borrowDuration: string;
+  duration: string;
 }
 
 const DelayedReservationLabel = styled.div`
@@ -38,7 +38,7 @@ const NotDelayedReservationLabel = styled.div`
 
 class BookCard extends React.Component<IBookCardProps, IBookCardState> {
   public state = {
-    borrowDuration: '1',
+    duration: '1',
   };
 
   public getBorrowOrReturnContent = () => {
@@ -50,7 +50,7 @@ class BookCard extends React.Component<IBookCardProps, IBookCardState> {
       availableToBorrow,
       reservationPenaltyEndAt,
     } = this.props;
-    const { borrowDuration } = this.state;
+    const { duration } = this.state;
     const isUserReserveThisBook =
       user && book.bookReservation && book.bookReservation.userId === user.id;
     // TODO: 리팩토링 & 서버로 로직 넘기기 필요
@@ -93,10 +93,10 @@ class BookCard extends React.Component<IBookCardProps, IBookCardState> {
           <Input
             onChange={(e) => {
               this.setState({
-                borrowDuration: e.currentTarget.value,
+                duration: e.currentTarget.value,
               });
             }}
-            value={borrowDuration}
+            value={duration}
             type="select"
           >
             <option key="1" value={'1'}>
@@ -112,7 +112,7 @@ class BookCard extends React.Component<IBookCardProps, IBookCardState> {
           <Button
             color="primary"
             onClick={() => {
-              borrowStart(book.id, borrowDuration);
+              borrowStart(book.id, duration);
             }}
           >
             대여하기

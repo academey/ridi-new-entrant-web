@@ -7,7 +7,7 @@ import BookCard from './BookCard';
 interface IBookCardsParams {
   user: User;
   books: Book[];
-  borrowStart: (bookId: number, borrowDuration: string) => void;
+  borrowStart: (bookId: number, duration: string) => void;
   returnStart: (bookId: number) => void;
   availableToBorrow: boolean;
   reservationPenaltyEndAt: string;
