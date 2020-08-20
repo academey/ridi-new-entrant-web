@@ -75,7 +75,7 @@
     "babel-preset-es2016": "^6.16.0",
     "babel-preset-react": "^6.0.0",
     "babel-runtime": "^6.26.0",
-    "bcrypt": "^3.0.6",
+    "bcrypt": "^5.0.0",
     "bootstrap": "^4.3.1",
     "concurrently": "^4.1.0",
     "connected-react-router": "^6.4.0",
